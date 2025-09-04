@@ -1,0 +1,132 @@
+import { NextRequest, NextResponse } from 'next/server';
+import { auth } from '@/lib/auth';
+import connectToDatabase from '@/lib/mongodb';
+import Comment from '@/lib/models/Comment';
+import Post from '@/lib/models/Post';
+
+interface CommentQuery {
+  post: string;
+  approved: boolean;
+}
+
+export async function GET(request: NextRequest) {
+  try {
+    await connectToDatabase();
+
+    const { searchParams } = new URL(request.url);
+    const postId = searchParams.get('postId');
+    const page = parseInt(searchParams.get('page') || '1');
+    const limit = parseInt(searchParams.get('limit') || '10');
+
+    if (!postId) {
+      return NextResponse.json(
+        { error: 'Post ID is required' },
+        { status: 400 }
+      );
+    }
+
+    // Check if post exists
+    const post = await Post.findById(postId);
+    if (!post) {
+      return NextResponse.json(
+        { error: 'Post not found' },
+        { status: 404 }
+      );
+    }
+
+    const query: CommentQuery = { post: postId, approved: true };
+
+    const skip = (page - 1) * limit;
+
+    const comments = await Comment.find(query)
+      .populate('author', 'name email image')
+      .populate({
+        path: 'parent',
+        populate: { path: 'author', select: 'name' }
+      })
+      .sort({ createdAt: 1 }) // Oldest first for threads
+      .skip(skip)
+      .limit(limit)
+      .lean();
+
+    const total = await Comment.countDocuments(query);
+
+    return NextResponse.json({
+      comments,
+      pagination: {
+        page,
+        limit,
+        total,
+        pages: Math.ceil(total / limit),
+      },
+    });
+  } catch (error) {
+    console.error('GET /api/comments error:', error);
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    );
+  }
+}
+
+export async function POST(request: NextRequest) {
+  try {
+    const session = await auth();
+    if (!session?.user) {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      );
+    }
+
+    await connectToDatabase();
+
+    const body = await request.json();
+    const { content, postId, parentId } = body;
+
+    if (!content?.trim() || !postId) {
+      return NextResponse.json(
+        { error: 'Content and post ID are required' },
+        { status: 400 }
+      );
+    }
+
+    // Check if post exists
+    const post = await Post.findById(postId);
+    if (!post) {
+      return NextResponse.json(
+        { error: 'Post not found' },
+        { status: 404 }
+      );
+    }
+
+    // If parentId provided, check if parent comment exists
+    if (parentId) {
+      const parentComment = await Comment.findById(parentId);
+      if (!parentComment) {
+        return NextResponse.json(
+          { error: 'Parent comment not found' },
+          { status: 404 }
+        );
+      }
+    }
+
+    const comment = new Comment({
+      content: content.trim(),
+      author: session.user.id,
+      post: postId,
+      parent: parentId || null,
+    });
+
+    const savedComment = await comment.save();
+    await savedComment.populate('author', 'name email image');
+
+    return NextResponse.json(savedComment, { status: 201 });
+  } catch (error) {
+    console.error('POST /api/comments error:', error);
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    );
+  }
+}
