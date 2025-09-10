@@ -37,7 +37,7 @@ export default function PostSlider({ posts }: PostSliderProps) {
                 {post.category.name}
               </span>
               <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                <Link href={`/posts/${post.slug}`} className="hover:text-blue-600">
+                <Link href={`/posts/${post.slug}`} className="hover:text-secondary">
                   {post.title}
                 </Link>
               </h3>

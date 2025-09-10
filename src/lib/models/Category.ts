@@ -47,6 +47,7 @@ const CategorySchema = new mongoose.Schema<ICategory>(
 );
 
 // Create indexes
+
 CategorySchema.index({ slug: 1 }, { unique: true });
 CategorySchema.index({ name: 1 });
 

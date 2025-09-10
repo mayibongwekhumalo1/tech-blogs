@@ -118,6 +118,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   pages: {
     signIn: '/auth/signin',
     error: '/auth/signin',
+    newUser: '/auth/signup',
   },
   events: {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars

@@ -6,11 +6,15 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  --secondary: #000080;
+  --accent: #f37d70;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-secondary: var(--secondary);
+  --color-accent: var(--accent);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }

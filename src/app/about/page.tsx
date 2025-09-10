@@ -59,7 +59,7 @@ export default function About() {
                   </div>
                   <div>
                     <h3 className="text-xl font-semibold text-gray-900 mb-2">Community Driven</h3>
-                    <p className="text-gray-600">Join a vibrant community of developers sharing knowledge and supporting each other's growth.</p>
+                    <p className="text-gray-600">Join a vibrant community of developers sharing knowledge and supporting each other&apos;s growth.</p>
                   </div>
                 </div>
 

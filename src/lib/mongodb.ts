@@ -13,11 +13,6 @@ if (!MONGODB_URI) {
   throw new Error('Please define the MONGODB_URI environment variable inside .env.local');
 }
 
-/**
- * Global is used here to maintain a cached connection across hot reloads
- * in development. This prevents connections growing exponentially
- * during API Route usage.
- */
 let cached = global.mongoose;
 
 if (!cached) {
@@ -25,37 +20,31 @@ if (!cached) {
 }
 
 async function connectToDatabase() {
-  // @ts-expect-error cached is possibly undefined
-  if (cached.conn) {
-    // @ts-expect-error cached is possibly undefined
-    return cached.conn;
+  if (cached!.conn) {
+    return cached!.conn;
   }
 
-  // @ts-expect-error cached is possibly undefined
-  if (!cached.promise) {
+  if (!cached!.promise) {
     const opts = {
       bufferCommands: false,
     };
 
-    // @ts-expect-error cached is possibly undefined
-    cached.promise = mongoose.connect(MONGODB_URI, opts).then((mongoose) => {
+    cached!.promise = mongoose.connect(MONGODB_URI, opts).then((mongooseInstance) => {
       console.log('Connected to MongoDB');
-      return mongoose;
+      cached!.conn = mongooseInstance;
+      return cached;
     });
   }
 
   try {
-    // @ts-expect-error cached is possibly undefined
-    cached.conn = await cached.promise;
+    cached!.conn = await cached!.promise;
   } catch (error) {
-    // @ts-expect-error cached is possibly undefined
-    cached.promise = null;
+    cached!.promise = null;
     console.error('MongoDB connection error:', error);
     throw error;
   }
 
-  // @ts-expect-error cached is possibly undefined
-  return cached.conn;
+  return cached!.conn;
 }
 
 export default connectToDatabase;
