@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { hash } from 'bcryptjs';
 import connectToDatabase from '@/lib/mongodb';
 import User from '@/lib/models/User';
 
@@ -88,14 +87,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Hash password
-    const hashedPassword = await hash(password, 12);
-
     // Create user
     const user = new User({
       name: name.trim(),
       email: email.toLowerCase(),
-      password: hashedPassword,
+      password: password,
       role,
     });
 
@@ -118,7 +114,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('Signup error:', error);
 
-    // Handle specific database errors
+    
     if (error instanceof Error) {
       if (error.message.includes('duplicate key')) {
         return NextResponse.json(

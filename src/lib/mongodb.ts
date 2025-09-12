@@ -1,9 +1,9 @@
-import mongoose from 'mongoose';
+import mongoose, { Mongoose } from 'mongoose';
 
 declare global {
   var mongoose: {
-    conn: typeof mongoose | null;
-    promise: Promise<typeof mongoose> | null;
+    conn: Mongoose | null;
+    promise: Promise<Mongoose> | null;
   } | undefined;
 }
 
@@ -29,10 +29,9 @@ async function connectToDatabase() {
       bufferCommands: false,
     };
 
-    cached!.promise = mongoose.connect(MONGODB_URI, opts).then((mongooseInstance) => {
+    cached!.promise = mongoose.connect(MONGODB_URI, opts).then(() => {
       console.log('Connected to MongoDB');
-      cached!.conn = mongooseInstance;
-      return cached;
+      return mongoose;
     });
   }
 

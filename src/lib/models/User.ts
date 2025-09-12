@@ -34,11 +34,13 @@ const UserSchema = new mongoose.Schema<IUser>(
     password: {
       type: String,
       required: function (this: IUser) {
+
         // Password is required only for credentials provider
+
         return !this.image; // If no image (OAuth), password is not required
       },
       minlength: [6, 'Password must be at least 6 characters long'],
-      select: false, // Don't include password in queries by default
+      select: false, 
     },
     role: {
       type: String,

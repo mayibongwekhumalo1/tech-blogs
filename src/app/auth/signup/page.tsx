@@ -69,10 +69,8 @@ export default function SignUp() {
         });
 
         if (result?.ok) {
-          router.push('/dashboard');
-        } else {
-          router.push('/auth/signin');
-        }
+          router.push('/');
+        } 
       } else {
         setError(data.error || 'An error occurred during registration');
       }
@@ -86,7 +84,7 @@ export default function SignUp() {
   const handleOAuthSignIn = async (provider: string) => {
     setLoading(true);
     try {
-      await signIn(provider, { callbackUrl: '/dashboard' });
+      await signIn(provider, { callbackUrl: '/' });
     } catch {
       setError('An error occurred. Please try again.');
       setLoading(false);
