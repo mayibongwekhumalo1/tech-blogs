@@ -5,6 +5,7 @@ import Banner from '../components/Banner';
 import SmallCard from '@/components/SmallCard';
 import Sidebar from '@/components/Sidebar'
 
+
 interface Post {
   slug: string;
   title: string;
@@ -12,6 +13,8 @@ interface Post {
   createdAt: string;
   author?: { image?: string };
 }
+
+
 
 export default function Home() {
   const [posts, setPosts] = useState<Post[]>([]);
@@ -53,6 +56,9 @@ export default function Home() {
 {/*  */}
 
     <div className="flex justify-between items-cent">
+      <h1>
+        Editor choice
+      </h1>
      {posts.slice(0, 3).map((post) => (
        <SmallCard key={post.slug} slug={post.slug} />
      ))}

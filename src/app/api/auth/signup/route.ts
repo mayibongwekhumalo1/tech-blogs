@@ -23,7 +23,7 @@ function validatePassword(password: string): { isValid: boolean; message?: strin
   }
   return { isValid: true };
 }
-
+j
 function validateRole(role: string): boolean {
   const validRoles = ['user', 'admin', 'moderator'];
   return validRoles.includes(role);
@@ -99,6 +99,7 @@ export async function POST(request: NextRequest) {
 
     // Return user data (excluding password)
     const userObject = savedUser.toObject();
+
     
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { password: _userPassword, ...userWithoutPassword } = userObject;

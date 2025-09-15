@@ -2,17 +2,45 @@
 
 import { useSession, signOut } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 export default function Dashboard() {
   const { data: session, status } = useSession();
   const router = useRouter();
+  const [categories, setCategories] = useState<{ _id: string; name: string }[]>([]);
+  const [formData, setFormData] = useState({
+    title: '',
+    content: '',
+    excerpt: '',
+    category: '',
+    tags: '',
+    published: false,
+  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [message, setMessage] = useState('');
 
   useEffect(() => {
     if (status === 'unauthenticated') {
       router.push('/auth/signin');
     }
   }, [status, router]);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const res = await fetch('/api/categories');
+        if (res.ok) {
+          const data = await res.json();
+          setCategories(data.categories || []);
+        }
+      } catch (error) {
+        console.error('Failed to fetch categories:', error);
+      }
+    };
+    if (session) {
+      fetchCategories();
+    }
+  }, [session]);
 
   if (status === 'loading') {
     return (
@@ -31,6 +59,53 @@ export default function Dashboard() {
 
   const handleSignOut = async () => {
     await signOut({ callbackUrl: '/' });
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    setMessage('');
+
+    try {
+      const response = await fetch('/api/posts', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          ...formData,
+          tags: formData.tags.split(',').map(tag => tag.trim()).filter(tag => tag),
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setMessage('Blog post created successfully!');
+        setFormData({
+          title: '',
+          content: '',
+          excerpt: '',
+          category: '',
+          tags: '',
+          published: false,
+        });
+      } else {
+        setMessage(data.error || 'Failed to create blog post');
+      }
+    } catch (error) {
+      setMessage('An error occurred while creating the blog post');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const { name, value, type } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: type === 'checkbox' ? (e.target as HTMLInputElement).checked : value,
+    }));
   };
 
   return (
@@ -100,6 +175,122 @@ export default function Dashboard() {
                       {session.user?.id}
                     </p>
                   </div>
+                </div>
+              </div>
+
+              <div className="mt-8 space-y-4">
+                <h3 className="text-lg font-medium text-gray-900">
+                  Create New Blog Post
+                </h3>
+                <div className="bg-white rounded-lg shadow p-6">
+                  <form onSubmit={handleSubmit} className="space-y-4">
+                    <div>
+                      <label htmlFor="title" className="block text-sm font-medium text-gray-700">
+                        Title *
+                      </label>
+                      <input
+                        type="text"
+                        id="title"
+                        name="title"
+                        value={formData.title}
+                        onChange={handleInputChange}
+                        required
+                        className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                      />
+                    </div>
+
+                    <div>
+                      <label htmlFor="excerpt" className="block text-sm font-medium text-gray-700">
+                        Excerpt
+                      </label>
+                      <textarea
+                        id="excerpt"
+                        name="excerpt"
+                        value={formData.excerpt}
+                        onChange={handleInputChange}
+                        rows={3}
+                        className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                      />
+                    </div>
+
+                    <div>
+                      <label htmlFor="content" className="block text-sm font-medium text-gray-700">
+                        Content *
+                      </label>
+                      <textarea
+                        id="content"
+                        name="content"
+                        value={formData.content}
+                        onChange={handleInputChange}
+                        required
+                        rows={10}
+                        className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                      />
+                    </div>
+
+                    <div>
+                      <label htmlFor="category" className="block text-sm font-medium text-gray-700">
+                        Category *
+                      </label>
+                      <select
+                        id="category"
+                        name="category"
+                        value={formData.category}
+                        onChange={handleInputChange}
+                        required
+                        className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                      >
+                        <option value="">Select a category</option>
+                        {categories.map((category) => (
+                          <option key={category._id} value={category._id}>
+                            {category.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div>
+                      <label htmlFor="tags" className="block text-sm font-medium text-gray-700">
+                        Tags (comma-separated)
+                      </label>
+                      <input
+                        type="text"
+                        id="tags"
+                        name="tags"
+                        value={formData.tags}
+                        onChange={handleInputChange}
+                        className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                      />
+                    </div>
+
+                    <div className="flex items-center">
+                      <input
+                        id="published"
+                        name="published"
+                        type="checkbox"
+                        checked={formData.published}
+                        onChange={handleInputChange}
+                        className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+                      />
+                      <label htmlFor="published" className="ml-2 block text-sm text-gray-900">
+                        Publish immediately
+                      </label>
+                    </div>
+
+                    <button
+                      type="submit"
+                      disabled={isSubmitting}
+                      className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
+                    >
+                      {isSubmitting ? 'Creating...' : 'Create Blog Post'}
+                    </button>
+
+                    {message && (
+                      <p className={`text-sm ${message.includes('successfully') ? 'text-green-600' : 'text-red-600'}`}>
+                        {message}
+                      </p>
+                    )}
+                  </form>
                 </div>
               </div>
 
