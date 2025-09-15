@@ -6,6 +6,7 @@ export interface IPost extends Document {
   slug: string;
   content: string;
   excerpt: string;
+  image?: string;
   author: mongoose.Types.ObjectId;
   category: mongoose.Types.ObjectId;
   tags: string[];
@@ -40,6 +41,10 @@ const PostSchema = new mongoose.Schema<IPost>(
     excerpt: {
       type: String,
       maxlength: [500, 'Excerpt must be less than 500 characters long'],
+    },
+    image: {
+      type: String,
+      trim: true,
     },
     author: {
       type: mongoose.Schema.Types.ObjectId,

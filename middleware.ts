@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from 'next/server'
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
   
-  console.log(`🔍 Middleware executing for: ${pathname}`)
+  console.log(` Middleware executing for: ${pathname}`)
   
   // Skip middleware for API routes, static files, and auth callback
   if (
@@ -12,7 +12,7 @@ export function middleware(request: NextRequest) {
     pathname.startsWith('/favicon.ico') ||
     pathname.includes('.')
   ) {
-    console.log(`⏭️ Skipping middleware for: ${pathname}`)
+    console.log(`Skipping middleware for: ${pathname}`)
     return NextResponse.next()
   }
 
@@ -21,25 +21,25 @@ export function middleware(request: NextRequest) {
   const sessionToken = request.cookies.get('next-auth.session-token') || 
                       request.cookies.get('__Secure-next-auth.session-token')
   
-  console.log(`🍪 Session token exists: ${!!sessionToken}`)
+  console.log(` Session token exists: ${!!sessionToken}`)
   
   // If accessing auth pages
   if (pathname.startsWith('/auth/')) {
     if (sessionToken) {
-      console.log(`🔄 Authenticated user accessing auth page, redirecting to home`)
+      console.log(` Authenticated user accessing auth page, redirecting to home`)
       return NextResponse.redirect(new URL('/', request.url))
     }
-    console.log(`✅ Allowing access to auth page: ${pathname}`)
+    console.log(` Allowing access to auth page: ${pathname}`)
     return NextResponse.next()
   }
   
   // For all other pages, require authentication
   if (!sessionToken) {
-    console.log(`🚫 Unauthenticated access to ${pathname}, redirecting to signin`)
+    console.log(` Unauthenticated access to ${pathname}, redirecting to signin`)
     return NextResponse.redirect(new URL('/auth/signin', request.url))
   }
   
-  console.log(`✅ Authenticated access to: ${pathname}`)
+  console.log(` Authenticated access to: ${pathname}`)
   return NextResponse.next()
 }
 

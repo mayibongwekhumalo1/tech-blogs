@@ -3,12 +3,23 @@
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import AdminGuard from '../../../components/AdminGuard';
+
+type PostWithDetails = {
+  _id: string;
+  title: string;
+  author?: { name: string };
+  createdAt: string | Date;
+  published: boolean;
+  category?: { name: string };
+};
+
 
 export default function AdminDashboard() {
-  const { data: session, status } = useSession();
+  const { data: session } = useSession();
   const router = useRouter();
   const [stats, setStats] = useState({ totalPosts: 0, totalUsers: 0, publishedPosts: 0 });
-  const [posts, setPosts] = useState<any[]>([]);
+  const [posts, setPosts] = useState<PostWithDetails[]>([]);
   const [categories, setCategories] = useState<{ _id: string; name: string }[]>([]);
   const [activeTab, setActiveTab] = useState('overview');
   const [formData, setFormData] = useState({
@@ -22,13 +33,6 @@ export default function AdminDashboard() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [message, setMessage] = useState('');
 
-  useEffect(() => {
-    if (status === 'unauthenticated') {
-      router.push('/auth/signin');
-    } else if (status === 'authenticated' && session?.user?.role !== 'admin') {
-      router.push('/unauthorized');
-    }
-  }, [status, session, router]);
 
   useEffect(() => {
     if (session?.user?.role === 'admin') {
@@ -50,10 +54,10 @@ export default function AdminDashboard() {
       setStats({
         totalPosts: postsData.posts?.length || 0,
         totalUsers: usersData.users?.length || 0,
-        publishedPosts: postsData.posts?.filter((p: { published: boolean }) => p.published).length || 0,
+        publishedPosts: postsData.posts?.filter((p: PostWithDetails) => p.published).length || 0,
       });
-    } catch (error) {
-      console.error('Failed to fetch stats:', error);
+    } catch (_error) {
+      console.error('Failed to fetch stats:', _error);
     }
   };
 
@@ -62,8 +66,8 @@ export default function AdminDashboard() {
       const res = await fetch('/api/posts?limit=50');
       const data = await res.json();
       setPosts(data.posts || []);
-    } catch (error) {
-      console.error('Failed to fetch posts:', error);
+    } catch (_error) {
+      console.error('Failed to fetch posts:', _error);
     }
   };
 
@@ -72,8 +76,8 @@ export default function AdminDashboard() {
       const res = await fetch('/api/categories');
       const data = await res.json();
       setCategories(data.categories || []);
-    } catch (error) {
-      console.error('Failed to fetch categories:', error);
+    } catch (_error) {
+      console.error('Failed to fetch categories:', _error);
     }
   };
 
@@ -106,12 +110,12 @@ export default function AdminDashboard() {
           tags: '',
           published: false,
         });
-        fetchPosts(); // Refresh posts list
-        fetchStats(); // Refresh stats
+        fetchPosts(); 
+        fetchStats(); 
       } else {
         setMessage(data.error || 'Failed to create blog post');
       }
-    } catch (error) {
+    } catch (_error) {
       setMessage('An error occurred while creating the blog post');
     } finally {
       setIsSubmitting(false);
@@ -134,7 +138,7 @@ export default function AdminDashboard() {
         const data = await response.json();
         setMessage(data.error || 'Failed to delete post');
       }
-    } catch (error) {
+    } catch (_error) {
       setMessage('An error occurred while deleting the post');
     }
   };
@@ -147,22 +151,8 @@ export default function AdminDashboard() {
     }));
   };
 
-  if (status === 'loading') {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-indigo-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (!session || session.user?.role !== 'admin') {
-    return null;
-  }
-
   return (
+    <AdminGuard>
     <div className="min-h-screen bg-gray-50">
       <nav className="bg-white shadow">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -172,7 +162,7 @@ export default function AdminDashboard() {
             </div>
             <div className="flex items-center space-x-4">
               <span className="text-gray-700">
-                Welcome, {session.user?.name || session.user?.email}
+                Welcome, {session?.user?.name || session?.user?.email}
               </span>
               <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
                 Admin
@@ -318,12 +308,22 @@ export default function AdminDashboard() {
               )}
 
               {activeTab === 'create' && (
-                <div>
-                  <h3 className="text-lg font-medium text-gray-900 mb-4">Create New Blog Post</h3>
-                  <form onSubmit={handleSubmit} className="space-y-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <label htmlFor="title" className="block text-sm font-medium text-gray-700">
+                <div className="bg-gradient-to-br from-white to-gray-50 p-8 rounded-xl shadow-lg border border-gray-100">
+                  <div className="flex items-center mb-6">
+                    <div className="p-3 bg-indigo-100 rounded-full mr-4">
+                      <svg className="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                      </svg>
+                    </div>
+                    <h3 className="text-2xl font-bold text-gray-900">Create New Blog Post</h3>
+                  </div>
+                  <form onSubmit={handleSubmit} className="space-y-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="group">
+                        <label htmlFor="title" className="flex items-center text-sm font-semibold text-gray-700 mb-2">
+                          <svg className="w-4 h-4 mr-2 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                          </svg>
                           Title *
                         </label>
                         <input
@@ -333,11 +333,15 @@ export default function AdminDashboard() {
                           value={formData.title}
                           onChange={handleInputChange}
                           required
-                          className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                          className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 bg-white hover:border-gray-400"
+                          placeholder="Enter post title..."
                         />
                       </div>
-                      <div>
-                        <label htmlFor="category" className="block text-sm font-medium text-gray-700">
+                      <div className="group">
+                        <label htmlFor="category" className="flex items-center text-sm font-semibold text-gray-700 mb-2">
+                          <svg className="w-4 h-4 mr-2 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                          </svg>
                           Category *
                         </label>
                         <select
@@ -346,7 +350,7 @@ export default function AdminDashboard() {
                           value={formData.category}
                           onChange={handleInputChange}
                           required
-                          className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                          className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 bg-white hover:border-gray-400"
                         >
                           <option value="">Select a category</option>
                           {categories.map((category) => (
@@ -358,8 +362,11 @@ export default function AdminDashboard() {
                       </div>
                     </div>
 
-                    <div>
-                      <label htmlFor="excerpt" className="block text-sm font-medium text-gray-700">
+                    <div className="group">
+                      <label htmlFor="excerpt" className="flex items-center text-sm font-semibold text-gray-700 mb-2">
+                        <svg className="w-4 h-4 mr-2 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" />
+                        </svg>
                         Excerpt
                       </label>
                       <textarea
@@ -368,12 +375,16 @@ export default function AdminDashboard() {
                         value={formData.excerpt}
                         onChange={handleInputChange}
                         rows={3}
-                        className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 bg-white hover:border-gray-400 resize-none"
+                        placeholder="Brief description of the post..."
                       />
                     </div>
 
-                    <div>
-                      <label htmlFor="content" className="block text-sm font-medium text-gray-700">
+                    <div className="group">
+                      <label htmlFor="content" className="flex items-center text-sm font-semibold text-gray-700 mb-2">
+                        <svg className="w-4 h-4 mr-2 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
                         Content *
                       </label>
                       <textarea
@@ -382,14 +393,18 @@ export default function AdminDashboard() {
                         value={formData.content}
                         onChange={handleInputChange}
                         required
-                        rows={10}
-                        className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                        rows={12}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 bg-white hover:border-gray-400 resize-none"
+                        placeholder="Write your blog post content here..."
                       />
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <label htmlFor="tags" className="block text-sm font-medium text-gray-700">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="group">
+                        <label htmlFor="tags" className="flex items-center text-sm font-semibold text-gray-700 mb-2">
+                          <svg className="w-4 h-4 mr-2 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                          </svg>
                           Tags (comma-separated)
                         </label>
                         <input
@@ -398,36 +413,59 @@ export default function AdminDashboard() {
                           name="tags"
                           value={formData.tags}
                           onChange={handleInputChange}
-                          className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                          className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 bg-white hover:border-gray-400"
+                          placeholder="e.g., tech, javascript, tutorial"
                         />
                       </div>
-                      <div className="flex items-center">
+                      <div className="flex items-center justify-center p-4 bg-gray-50 rounded-lg border border-gray-200">
                         <input
                           id="published"
                           name="published"
                           type="checkbox"
                           checked={formData.published}
                           onChange={handleInputChange}
-                          className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+                          className="h-5 w-5 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded transition-all duration-200"
                         />
-                        <label htmlFor="published" className="ml-2 block text-sm text-gray-900">
+                        <label htmlFor="published" className="ml-3 text-sm font-medium text-gray-700 cursor-pointer">
                           Publish immediately
                         </label>
                       </div>
                     </div>
 
-                    <button
-                      type="submit"
-                      disabled={isSubmitting}
-                      className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
-                    >
-                      {isSubmitting ? 'Creating...' : 'Create Blog Post'}
-                    </button>
+                    <div className="pt-4">
+                      <button
+                        type="submit"
+                        disabled={isSubmitting}
+                        className="w-full flex justify-center items-center py-4 px-6 border border-transparent rounded-lg shadow-lg text-base font-semibold text-white bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 transform hover:scale-105"
+                      >
+                        {isSubmitting ? (
+                          <>
+                            <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            Creating...
+                          </>
+                        ) : (
+                          <>
+                            <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                            </svg>
+                            Create Blog Post
+                          </>
+                        )}
+                      </button>
+                    </div>
 
                     {message && (
-                      <p className={`text-sm ${message.includes('successfully') ? 'text-green-600' : 'text-red-600'}`}>
-                        {message}
-                      </p>
+                      <div className={`p-4 rounded-lg border ${message.includes('successfully') ? 'bg-green-50 border-green-200 text-green-800' : 'bg-red-50 border-red-200 text-red-800'}`}>
+                        <div className="flex items-center">
+                          <svg className={`w-5 h-5 mr-2 ${message.includes('successfully') ? 'text-green-600' : 'text-red-600'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={message.includes('successfully') ? "M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" : "M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"} />
+                          </svg>
+                          {message}
+                        </div>
+                      </div>
                     )}
                   </form>
                 </div>
@@ -478,5 +516,6 @@ export default function AdminDashboard() {
         </div>
       </main>
     </div>
+    </AdminGuard>
   );
 }

@@ -67,7 +67,7 @@ export async function POST(request: NextRequest) {
     await connectToDatabase();
 
     const body = await request.json();
-    const { title, content, excerpt, category, tags, published, featured } = body;
+    const { title, content, excerpt, image, category, tags, published, featured } = body;
 
     // Validate required fields
     if (!title?.trim() || !content?.trim() || !category) {
@@ -110,6 +110,7 @@ export async function POST(request: NextRequest) {
       slug,
       content: content.trim(),
       excerpt: excerpt?.trim(),
+      image: image?.trim(),
       author: session.user.id,
       category,
       tags: tags || [],

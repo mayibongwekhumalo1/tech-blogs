@@ -12,6 +12,7 @@ export default function SignUp() {
     email: '',
     password: '',
     confirmPassword: '',
+    role: 'user',
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -55,6 +56,7 @@ export default function SignUp() {
           name: formData.name,
           email: formData.email,
           password: formData.password,
+          role: formData.role,
         }),
       });
 
@@ -70,7 +72,9 @@ export default function SignUp() {
 
         if (result?.ok) {
           router.push('/');
-        } 
+        } else {
+          setError(result?.error || 'Failed to sign in after registration. Please try signing in manually.');
+        }
       } else {
         setError(data.error || 'An error occurred during registration');
       }
@@ -175,6 +179,19 @@ export default function SignUp() {
               >
                 {showConfirmPassword ? <EyeSlashIcon className="h-5 w-5" /> : <EyeIcon className="h-5 w-5" />}
               </button>
+            </div>
+            <div className="relative">
+              <select
+                id="role"
+                name="role"
+                value={formData.role}
+                onChange={(e) => setFormData({ ...formData, role: e.target.value })}
+                className="appearance-none block w-full pl-3 pr-10 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+              >
+                <option value="user">User</option>
+                <option value="admin">Admin</option>
+                <option value="moderator">Moderator</option>
+              </select>
             </div>
           </div>
 

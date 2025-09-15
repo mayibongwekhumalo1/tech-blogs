@@ -23,7 +23,7 @@ function validatePassword(password: string): { isValid: boolean; message?: strin
   }
   return { isValid: true };
 }
-j
+
 function validateRole(role: string): boolean {
   const validRoles = ['user', 'admin', 'moderator'];
   return validRoles.includes(role);

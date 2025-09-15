@@ -7,6 +7,7 @@ import { useSession, signOut } from 'next-auth/react';
 import { FaRegHeart } from "react-icons/fa";
 import { FaRegUserCircle } from "react-icons/fa";
 import { BsRouterFill } from "react-icons/bs";
+import Image from 'next/image';
 
 
 type DropdownType = 'features' | 'categories' | 'mobile' | null;
@@ -91,7 +92,16 @@ const SuperHeader = () => {
           <div className="flex justify-between items-center">
             {/* Logo */}
             <div className="flex-shrink-0 flex items-center">
-              <Link href="/" className="text-2xl font-bold text-secondary">Zaira Tech Blogs</Link>
+              <Link href="/" className="text-2xl font-bold text-secondary">
+              
+              <Image
+                  src =''
+                  width={}
+                  height={}
+
+              />
+              
+              </Link>
             </div>
 
             {/* Desktop Navigation */}
