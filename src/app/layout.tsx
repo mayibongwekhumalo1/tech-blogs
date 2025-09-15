@@ -4,6 +4,7 @@ import "./globals.css";
 import Providers from "./providers";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
+import FloatingCreateButton from "../components/FloatingCreateButton";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -28,11 +29,12 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-amber-50 `}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-amber-50 overflow-x-hidden`}
       >
         <Providers>
           <Navbar />
           {children}
+          <FloatingCreateButton />
         </Providers>
         <Footer />
       </body>

@@ -61,7 +61,7 @@ const SmallCard: React.FC<SmallCardProps> = ({ slug, title, category, date, imag
   const displayImage = imageUrl || post.author?.image || '/placeholder-image.jpg';
 
   return (
-    <div className="flex w-full max-w-[270px] h-[100px] bg-transparent my-3">
+    <div className="flex w-full max-w-[270px] h-[100px] bg-transparent my-3 border-2 ">
         {/* image holder */}
         <div className="w-[120px] bg-blue-300 flex items-center justify-center">
             <img src={displayImage} alt={displayTitle} className="w-full h-full object-cover" onError={(e) => { e.currentTarget.src = '/placeholder-image.jpg'; }} />

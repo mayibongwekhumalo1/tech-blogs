@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-// import  {authOptions } from '@/lib/auth';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
 import connectToDatabase from '@/lib/mongodb';
 import Post, { IPost } from '@/lib/models/Post';
 import Category from '@/lib/models/Category';
@@ -55,18 +56,18 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    // const session = await authOptions();
-    // if (!session?.user) {
-    //   return NextResponse.json(
-    //     { error: 'Unauthorized' },
-    //     { status: 401 }
-    //   );
-    // }
+    const session = await getServerSession(authOptions);
+    if (!session?.user) {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      );
+    }
 
     await connectToDatabase();
 
     const body = await request.json();
-    const { title, content, excerpt, category, tags, published, featured } = body;
+    const { title, content, excerpt, image, category, tags, published, featured } = body;
 
     // Validate required fields
     if (!title?.trim() || !content?.trim() || !category) {
@@ -109,7 +110,8 @@ export async function POST(request: NextRequest) {
       slug,
       content: content.trim(),
       excerpt: excerpt?.trim(),
-      // author: session.user.id,
+      image: image?.trim(),
+      author: session.user.id,
       category,
       tags: tags || [],
       published: published || false,
