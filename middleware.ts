@@ -1,52 +1,47 @@
-import { auth } from '@/lib/auth';
-import { NextResponse } from 'next/server';
-import type { NextRequest } from 'next/server';
-import type { Session } from 'next-auth';
+import { NextRequest, NextResponse } from 'next/server'
 
-export default auth((req: NextRequest & { auth: Session | null }) => {
-  const { nextUrl } = req;
-  const isLoggedIn = !!req.auth;
-  const currentPath = nextUrl.pathname;
+export function middleware(request: NextRequest) {
+  const { pathname } = request.nextUrl
+  
+  console.log(`🔍 Middleware executing for: ${pathname}`)
+  
+  // Skip middleware for API routes, static files, and auth callback
+  if (
+    pathname.startsWith('/api/') ||
+    pathname.startsWith('/_next/') ||
+    pathname.startsWith('/favicon.ico') ||
+    pathname.includes('.')
+  ) {
+    console.log(`⏭️ Skipping middleware for: ${pathname}`)
+    return NextResponse.next()
+  }
 
-  // Define protected routes and their required roles
-  const protectedRoutes: Record<string, string[]> = {
-    '/dashboard': ['user', 'admin', 'moderator'],
-    '/admin': ['admin'],
-    '/moderator': ['admin', 'moderator'],
-  };
-
-
-  // Check if current path is protected
-  const requiredRoles = Object.entries(protectedRoutes).find(([path]) =>
-    currentPath.startsWith(path)
-  )?.[1];
-
-  if (requiredRoles) {
-    if (!isLoggedIn) {
-      console.log(`Unauthorized access attempt to ${currentPath}, redirecting to signin`);
-      return NextResponse.redirect(new URL('/auth/signin', nextUrl));
+  // Get the session token from cookies
+  
+  const sessionToken = request.cookies.get('next-auth.session-token') || 
+                      request.cookies.get('__Secure-next-auth.session-token')
+  
+  console.log(`🍪 Session token exists: ${!!sessionToken}`)
+  
+  // If accessing auth pages
+  if (pathname.startsWith('/auth/')) {
+    if (sessionToken) {
+      console.log(`🔄 Authenticated user accessing auth page, redirecting to home`)
+      return NextResponse.redirect(new URL('/', request.url))
     }
-
-    const userRole = req.auth?.user?.role;
-    if (!userRole || !requiredRoles.includes(userRole)) {
-      console.log(`User with role ${userRole} denied access to ${currentPath}`);
-      return NextResponse.redirect(new URL('/unauthorized', nextUrl));
-    }
+    console.log(`✅ Allowing access to auth page: ${pathname}`)
+    return NextResponse.next()
   }
-
-  // Redirect authenticated users away from auth pages
-  if (isLoggedIn && (currentPath === '/auth/signin' || currentPath === '/auth/signup')) {
-    console.log(`Authenticated user accessing ${currentPath}, redirecting to dashboard`);
-    return NextResponse.redirect(new URL('/dashboard', nextUrl));
+  
+  // For all other pages, require authentication
+  if (!sessionToken) {
+    console.log(`🚫 Unauthenticated access to ${pathname}, redirecting to signin`)
+    return NextResponse.redirect(new URL('/auth/signin', request.url))
   }
-
-  // Allow API routes to pass through
-  if (currentPath.startsWith('/api/')) {
-    return NextResponse.next();
-  }
-
-  return NextResponse.next();
-});
+  
+  console.log(`✅ Authenticated access to: ${pathname}`)
+  return NextResponse.next()
+}
 
 export const config = {
   matcher: [
@@ -56,8 +51,7 @@ export const config = {
      * - _next/static (static files)
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
-     * - public files with extensions
      */
-    '/((?!api|_next/static|_next/image|favicon.ico|.*\\..*).*)',
+    '/((?!api|_next/static|_next/image|favicon.ico).*)',
   ],
-};
+}

@@ -1,8 +1,12 @@
 import NextAuth from 'next-auth';
+import type { NextAuthOptions, Session, User as NextAuthUser } from 'next-auth';
+import type { JWT } from 'next-auth/jwt';
+import type { Account } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import GitHubProvider from 'next-auth/providers/github';
 import GoogleProvider from 'next-auth/providers/google';
 import User from './models/User';
+import connectToDatabase from './mongodb';
 
 declare module 'next-auth' {
   interface Session {
@@ -26,7 +30,7 @@ declare module 'next-auth/jwt' {
   }
 }
 
-export const { handlers, auth, signIn, signOut } = NextAuth({
+export const authOptions = {
   providers: [
     CredentialsProvider({
       name: 'credentials',
@@ -40,7 +44,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         }
 
         try {
-          const user = await User.findOne({ email: credentials.email.toLowerCase() });
+          await connectToDatabase();
+          const user = await User.findOne({ email: credentials.email.toLowerCase() }).select('+password');
 
           if (!user) {
             throw new Error('No user found with this email');
@@ -78,17 +83,23 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     }),
   ],
   session: {
-    strategy: 'jwt',
+    strategy: 'jwt' as const,
     maxAge: 30 * 24 * 60 * 60, // 30 days
   },
+  pages: {
+    signIn: '/auth/signin',
+    error: '/auth/signin',
+    newUser: '/auth/signup',
+  },
   callbacks: {
-    async jwt({ token, user, account }) {
+    async jwt({ token, user, account }: { token: JWT; user?: NextAuthUser; account?: Account | null }) {
       if (user) {
         token.role = user.role || 'user';
       }
 
       // Handle OAuth users
       if (account?.provider === 'github' || account?.provider === 'google') {
+        await connectToDatabase();
         const existingUser = await User.findOne({ email: token.email });
 
         if (existingUser) {
@@ -107,26 +118,36 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
       return token;
     },
-    async session({ session, token }) {
+    async session({ session, token }: { session: Session; token: JWT }) {
       if (token && session.user) {
         session.user.id = token.sub!;
         session.user.role = token.role as string;
       }
       return session;
     },
-  },
-  pages: {
-    signIn: '/auth/signin',
-    error: '/auth/signin',
-    newUser: '/auth/signup',
+    async redirect({ url, baseUrl }: { url: string; baseUrl: string }) {
+      // Redirect to home page after sign in
+      if (url.startsWith('/auth/signin') || url.startsWith('/auth/signup')) {
+        return baseUrl;
+      }
+      // Allows relative callback URLs
+
+      if (url.startsWith("/")) return `${baseUrl}${url}`;
+      
+      // Allows callback URLs on the same origin
+      if (new URL(url).origin === baseUrl) return url;
+      return baseUrl;
+    },
   },
   events: {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    async signIn({ user, account, profile: _profile }) {
+
+    async signIn({ user, account }: { user: NextAuthUser; account?: Account | null }) {
       console.log(`User ${user.email} signed in via ${account?.provider}`);
     },
-    async signOut({ token }) {
+    async signOut({ token }: { token?: JWT }) {
       console.log(`User ${token?.email} signed out`);
     },
   },
-});
+};
+
+export default NextAuth(authOptions);

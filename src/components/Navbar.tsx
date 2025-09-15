@@ -3,6 +3,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useSession, signOut } from 'next-auth/react';
 import { FaRegHeart } from "react-icons/fa";
 import { FaRegUserCircle } from "react-icons/fa";
 import { BsRouterFill } from "react-icons/bs";
@@ -14,6 +15,8 @@ const SuperHeader = () => {
   const [activeDropdown, setActiveDropdown] = useState<DropdownType>(null);
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const { data: session, status } = useSession();
 
   // Handle scroll effect for header
   useEffect(() => {
@@ -28,10 +31,11 @@ const SuperHeader = () => {
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (!event.target) return;
-      
+
       const target = event.target as HTMLElement;
-      if (!target.closest('.dropdown-container') && !target.closest('.mobile-menu-button')) {
+      if (!target.closest('.dropdown-container') && !target.closest('.mobile-menu-button') && !target.closest('.user-menu-container')) {
         setActiveDropdown(null);
+        setIsUserMenuOpen(false);
       }
     };
 
@@ -59,6 +63,25 @@ const SuperHeader = () => {
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
     if (activeDropdown) setActiveDropdown(null);
+  };
+
+  const toggleUserMenu = () => {
+    setIsUserMenuOpen(!isUserMenuOpen);
+  };
+
+  const getUserInitials = (name?: string | null, email?: string | null) => {
+    if (name) {
+      return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+    }
+    if (email) {
+      return email[0].toUpperCase();
+    }
+    return 'U';
+  };
+
+  const handleSignOut = () => {
+    signOut({ callbackUrl: '/' });
+    setIsUserMenuOpen(false);
   };
 
   return (
@@ -175,13 +198,39 @@ const SuperHeader = () => {
                 <BsRouterFill />
               </button>
               
-              {/* Sign In button */}
-              <Link href="/auth/signin" className =" flex space-x-2.5 items-center bg-accent text-white px-4 py-2 rounded-lg text-md hover:bg-accent/80">
-                
-                <FaRegUserCircle className='mx-2' />
-                
-                Sign In
-              </Link>
+              {/* User menu or Sign In button */}
+              {session?.user ? (
+                <div className="relative user-menu-container">
+                  <button
+                    onClick={toggleUserMenu}
+                    className="flex items-center space-x-2 bg-accent text-white px-3 py-2 rounded-lg text-md hover:bg-accent/80 transition-colors"
+                    aria-expanded={isUserMenuOpen}
+                  >
+                    <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center text-sm font-semibold">
+                      {getUserInitials(session.user.name, session.user.email)}
+                    </div>
+                  </button>
+
+                  {/* User dropdown menu */}
+                  <div className={`absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl py-2 border border-gray-100 transition-all duration-300 transform origin-top-right ${isUserMenuOpen ? 'opacity-100 scale-100' : 'opacity-0 scale-95 pointer-events-none'}`}>
+                    <div className="px-4 py-2 border-b border-gray-100">
+                      <p className="text-sm font-medium text-gray-900">{session.user.name || 'User'}</p>
+                      <p className="text-xs text-gray-500">{session.user.email}</p>
+                    </div>
+                    <button
+                      onClick={handleSignOut}
+                      className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-colors"
+                    >
+                      Sign Out
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <Link href="/auth/signin" className="flex space-x-2.5 items-center bg-accent text-white px-4 py-2 rounded-lg text-md hover:bg-accent/80">
+                  <FaRegUserCircle className='mx-2' />
+                  Sign In
+                </Link>
+              )}
             </div>
 
             {/* Mobile menu button */}
@@ -316,6 +365,42 @@ const SuperHeader = () => {
             >
               Contact
             </Link>
+
+            {/* Mobile user menu */}
+            {session?.user ? (
+              <div className="border-t border-gray-200 pt-4 mt-4">
+                <div className="px-4 py-2">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-10 h-10 bg-accent/10 rounded-full flex items-center justify-center text-sm font-semibold text-accent">
+                      {getUserInitials(session.user.name, session.user.email)}
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-gray-900">{session.user.name || 'User'}</p>
+                      <p className="text-xs text-gray-500">{session.user.email}</p>
+                    </div>
+                  </div>
+                </div>
+                <button
+                  onClick={() => {
+                    handleSignOut();
+                    setIsMobileMenuOpen(false);
+                  }}
+                  className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-colors"
+                >
+                  Sign Out
+                </button>
+              </div>
+            ) : (
+              <div className="border-t border-gray-200 pt-4 mt-4">
+                <Link
+                  href="/auth/signin"
+                  className="block py-3 px-4 text-center bg-accent text-white rounded-lg hover:bg-accent/80 transition-colors font-medium"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  Sign In
+                </Link>
+              </div>
+            )}
           </div>
         </div>
       </header>

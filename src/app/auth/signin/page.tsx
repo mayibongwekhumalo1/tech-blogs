@@ -27,11 +27,11 @@ export default function SignIn() {
       });
 
       if (result?.error) {
-        setError('Invalid credentials');
+        setError(result.error);
       } else {
         // Refresh session and redirect
         await getSession();
-        router.push('/dashboard');
+        router.push('/');
       }
     } catch {
       setError('An error occurred. Please try again.');
@@ -43,7 +43,7 @@ export default function SignIn() {
   const handleOAuthSignIn = async (provider: string) => {
     setLoading(true);
     try {
-      await signIn(provider, { callbackUrl: '/dashboard' });
+      await signIn(provider, { callbackUrl: '/' });
     } catch {
       setError('An error occurred. Please try again.');
       setLoading(false);

@@ -1,5 +1,7 @@
+import { authOptions } from '@/lib/auth';
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/lib/auth';
+import { getServerSession } from 'next-auth/next';
+
 import connectToDatabase from '@/lib/mongodb';
 import Comment from '@/lib/models/Comment';
 import Post from '@/lib/models/Post';
@@ -71,7 +73,7 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await auth();
+    const session = await getServerSession(authOptions);
     if (!session?.user) {
       return NextResponse.json(
         { error: 'Unauthorized' },
