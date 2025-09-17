@@ -7,6 +7,8 @@ import Banner from '../components/Banner';
 import PostCard from '../components/PostCard';
 import Sidebar from '../components/Sidebar';
 import PostModal from '../components/PostModal';
+import SmallCard from '../components/SmallCard'
+import OverlayCard from '../components/OverlayCard'
 
 interface Post {
   _id: string;
@@ -66,11 +68,9 @@ const Home: React.FC = () => {
     <div className="min-h-screen bg-gray-50">
       <Banner />
 
-      <main className="max-w-7xl mx-auto py-12 px-6">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-2">
-            {/* Editor&apos;s Choice */}
-            <div className="flex justify-between items-center mb-6">
+
+
+       <div className="flex justify-between items-center mb-6 px-20">
               <h2 className="text-2xl font-bold">Editor&apos;s Choice</h2>
               <div className="flex space-x-2">
                 <button className="p-2 bg-gray-200 rounded-full hover:bg-gray-300">◀</button>
@@ -78,9 +78,9 @@ const Home: React.FC = () => {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
+            <div className="grid grid-cols-1 md:flex items-center justify-center gap-6 mb-12 border-2 border-black">
               {posts.slice(0, 3).map((post) => (
-                <PostCard
+                <SmallCard
                   key={post._id}
                   category={post.category?.name || 'Uncategorized'}
                   title={post.title}
@@ -93,25 +93,47 @@ const Home: React.FC = () => {
               ))}
             </div>
 
+      <main className="max-w-7xl mx-auto py-12 px-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="lg:col-span-2">
+            {/* Editor&apos;s Choice */}
+           
+
             {/* Recent Posts */}
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-2xl font-bold">Recent Posts</h2>
               <button className="text-blue-600 font-semibold hover:underline">View All</button>
             </div>
-
-            <div className="space-y-6 mb-12">
-              {posts.slice(3, 7).map((post) => (
-                <PostCard
-                  key={post._id}
-                  category={post.category?.name || 'Uncategorized'}
-                  title={post.title}
-                  date={new Date(post.createdAt).toLocaleDateString()}
-                  excerpt={post.excerpt}
-                  author={post.author?.name ? `by ${post.author.name}` : undefined}
-                  readTime="5 Mins"
-                  onClick={() => handlePostClick(post)}
-                  slug={post.slug}
-                />
+              
+              
+            <div className="space-y-6 mb-12 grid grid-rows-1 grid-cols-1 lg:grid-cols-3">
+              {posts.slice(3, 7).map((post, index) => (
+                <div key={post._id} className={index === 0 ? 'lg:col-span-2' : ''}>
+                  {index === 0 ? (
+                    <OverlayCard
+                      category={post.category?.name || 'Uncategorized'}
+                      title={post.title}
+                      date={new Date(post.createdAt).toLocaleDateString()}
+                      excerpt={post.excerpt}
+                      author={post.author?.name ? `by ${post.author.name}` : undefined}
+                      readTime="5 Mins"
+                      onClick={() => handlePostClick(post)}
+                      slug={post.slug}
+                      image={post.image}
+                    />
+                  ) : (
+                    <PostCard
+                      category={post.category?.name || 'Uncategorized'}
+                      title={post.title}
+                      date={new Date(post.createdAt).toLocaleDateString()}
+                      excerpt={post.excerpt}
+                      author={post.author?.name ? `by ${post.author.name}` : undefined}
+                      readTime="5 Mins"
+                      onClick={() => handlePostClick(post)}
+                      slug={post.slug}
+                    />
+                  )}
+                </div>
               ))}
             </div>
 

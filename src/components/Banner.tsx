@@ -7,8 +7,8 @@ import React from 'react';
 const Hero = () => {
   return (
     <div className="bg-gray-100 py-12 px-6">
-      <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <div className="lg:col-span-2 bg-white rounded-lg shadow-md p-6">
+      <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8 ">
+        <div className="lg:col-span-2 bg-black/25 rounded-lg shadow-md p-6">
           <span className="text-blue-600 font-semibold">Technology</span>
           <h2 className="text-3xl font-bold mt-2 mb-4">Game Changing Virtual Reality Console Technololows</h2>
           <p className="text-gray-600 mb-4">Profit To Serve The Community</p>
