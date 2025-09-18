@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import Image from 'next/image'
+import { CldImage } from 'next-cloudinary'
 import { MdOutlineDateRange } from "react-icons/md";
 
 interface SmallCardProps {
@@ -82,7 +82,7 @@ const SmallCard: React.FC<SmallCardProps> = ({ slug, title, category, date, imag
     >
         {/* image holder */}
         <div className="w-[120px] bg-blue-300 flex items-center justify-center relative">
-            <Image fill src={displayImage} alt={displayTitle} objectFit="cover" onError={(e) => { e.currentTarget.src = '/placeholder-image.jpg'; }} />
+            <CldImage fill src={displayImage} alt={displayTitle} className="object-cover" />
         </div>
 
         <div className="text-black px-2.5 py-1.5 space-y-2.5">

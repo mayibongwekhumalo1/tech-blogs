@@ -1,5 +1,5 @@
 import React from 'react';
-import Image from 'next/image';
+import { CldImage } from 'next-cloudinary';
 
 export interface OverlayCardProps {
   category: string;
@@ -27,7 +27,7 @@ const OverlayCard: React.FC<OverlayCardProps> = ({
       onClick={onClick}
     >
       {image && (
-        <Image
+        <CldImage
           fill
           src={image}
           alt={title}
