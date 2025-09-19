@@ -14,7 +14,6 @@ import {
   FaTag,
   FaImage,
   FaFileAlt,
-  FaTimes,
   FaEdit,
   FaTrash,
   FaFolder

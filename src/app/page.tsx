@@ -154,7 +154,6 @@ const Home: React.FC = () => {
                       date={new Date(post.createdAt).toLocaleDateString()}
                       excerpt={post.excerpt}
                       author={post.author?.name ? `by ${post.author.name}` : undefined}
-                      readTime="5 Mins"
                       onClick={() => handlePostClick(post)}
                       slug={post.slug}
                     />
