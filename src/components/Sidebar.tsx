@@ -11,7 +11,7 @@ const Sidebar = () => {
         {/* Social media icons */}
         {['facebook', 'twitter', 'instagram', 'youtube', 'linkedin', 'pinterest'].map((platform) => (
           <a key={platform} href="#" className="text-gray-600 hover:text-blue-600">
-            {/* Placeholder for icons - you would use actual icon components */}
+            {/* Placeholder for icons -  */}
             <span className="text-xl">{platform[0].toUpperCase()}</span>
           </a>
         ))}

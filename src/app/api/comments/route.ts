@@ -103,6 +103,7 @@ export async function POST(request: NextRequest) {
     }
 
     // If parentId provided, check if parent comment exists
+    
     if (parentId) {
       const parentComment = await Comment.findById(parentId);
       if (!parentComment) {

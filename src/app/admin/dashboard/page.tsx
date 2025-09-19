@@ -4,6 +4,20 @@ import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import AdminGuard from '../../../components/AdminGuard';
+import { CldUploadWidget } from 'next-cloudinary';
+import {
+  FaBook,
+  FaCheckCircle,
+  FaUsers,
+  FaChartLine,
+  FaPlus,
+  FaTag,
+  FaImage,
+  FaFileAlt,
+  FaEdit,
+  FaTrash,
+  FaFolder
+} from 'react-icons/fa';
 
 type PostWithDetails = {
   _id: string;
@@ -155,23 +169,30 @@ export default function AdminDashboard() {
 
   return (
     <AdminGuard>
-    <div className="min-h-screen bg-gray-50">
-      <nav className="bg-white shadow">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
+      <nav className="bg-white/80 backdrop-blur-lg shadow-lg border-b border-white/20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
             <div className="flex items-center">
-              <h1 className="text-xl font-semibold text-gray-900">Admin Dashboard</h1>
+              <div className="flex items-center space-x-3">
+                <div className="w-8 h-8 bg-blue-950 rounded-lg flex items-center justify-center">
+                  <span className="text-white font-bold text-sm">A</span>
+                </div>
+                <h1 className="text-xl font-bold text-blue-950">
+                  Admin Dashboard
+                </h1>
+              </div>
             </div>
             <div className="flex items-center space-x-4">
               <span className="text-gray-700">
                 Welcome, {session?.user?.name || session?.user?.email}
               </span>
-              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-950 text-white">
                 Admin
               </span>
               <button
                 onClick={() => router.push('/dashboard')}
-                className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md text-sm font-medium"
+                className="bg-blue-950 hover:bg-blue-900 text-white px-4 py-2 rounded-md text-sm font-medium transition-all duration-200"
               >
                 User Dashboard
               </button>
@@ -184,12 +205,10 @@ export default function AdminDashboard() {
         <div className="px-4 py-6 sm:px-0">
           {/* Stats Cards */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-            <div className="bg-white rounded-lg shadow p-6">
+            <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-100 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
               <div className="flex items-center">
-                <div className="p-2 bg-blue-100 rounded-lg">
-                  <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                  </svg>
+                <div className="w-12 h-12 bg-blue-950 rounded-lg flex items-center justify-center">
+                  <FaBook className="text-white text-xl" />
                 </div>
                 <div className="ml-4">
                   <p className="text-sm font-medium text-gray-600">Total Posts</p>
@@ -198,12 +217,10 @@ export default function AdminDashboard() {
               </div>
             </div>
 
-            <div className="bg-white rounded-lg shadow p-6">
+            <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-100 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
               <div className="flex items-center">
-                <div className="p-2 bg-green-100 rounded-lg">
-                  <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
+                <div className="w-12 h-12 bg-blue-950 rounded-lg flex items-center justify-center">
+                  <FaCheckCircle className="text-white text-xl" />
                 </div>
                 <div className="ml-4">
                   <p className="text-sm font-medium text-gray-600">Published</p>
@@ -212,12 +229,10 @@ export default function AdminDashboard() {
               </div>
             </div>
 
-            <div className="bg-white rounded-lg shadow p-6">
+            <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-100 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
               <div className="flex items-center">
-                <div className="p-2 bg-purple-100 rounded-lg">
-                  <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
-                  </svg>
+                <div className="w-12 h-12 bg-blue-950 rounded-lg flex items-center justify-center">
+                  <FaUsers className="text-white text-xl" />
                 </div>
                 <div className="ml-4">
                   <p className="text-sm font-medium text-gray-600">Total Users</p>
@@ -226,12 +241,10 @@ export default function AdminDashboard() {
               </div>
             </div>
 
-            <div className="bg-white rounded-lg shadow p-6">
+            <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-100 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
               <div className="flex items-center">
-                <div className="p-2 bg-yellow-100 rounded-lg">
-                  <svg className="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-                  </svg>
+                <div className="w-12 h-12 bg-blue-950 rounded-lg flex items-center justify-center">
+                  <FaChartLine className="text-white text-xl" />
                 </div>
                 <div className="ml-4">
                   <p className="text-sm font-medium text-gray-600">Draft Posts</p>
@@ -255,7 +268,7 @@ export default function AdminDashboard() {
                     onClick={() => setActiveTab(tab.id)}
                     className={`py-4 px-1 border-b-2 font-medium text-sm ${
                       activeTab === tab.id
-                        ? 'border-indigo-500 text-indigo-600'
+                        ? 'border-blue-950 text-blue-950'
                         : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                     }`}
                   >
@@ -312,10 +325,8 @@ export default function AdminDashboard() {
               {activeTab === 'create' && (
                 <div className="bg-gradient-to-br from-white to-gray-50 p-8 rounded-xl shadow-lg border border-gray-100">
                   <div className="flex items-center mb-6">
-                    <div className="p-3 bg-indigo-100 rounded-full mr-4">
-                      <svg className="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                      </svg>
+                    <div className="w-12 h-12 bg-blue-950 rounded-full flex items-center justify-center mr-4">
+                      <FaPlus className="text-white text-xl" />
                     </div>
                     <h3 className="text-2xl font-bold text-gray-900">Create New Blog Post</h3>
                   </div>
@@ -323,9 +334,7 @@ export default function AdminDashboard() {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div className="group">
                         <label htmlFor="title" className="flex items-center text-sm font-semibold text-gray-700 mb-2">
-                          <svg className="w-4 h-4 mr-2 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
-                          </svg>
+                          <FaTag className="w-4 h-4 mr-2 text-blue-950" />
                           Title *
                         </label>
                         <input
@@ -341,9 +350,7 @@ export default function AdminDashboard() {
                       </div>
                       <div className="group">
                         <label htmlFor="category" className="flex items-center text-sm font-semibold text-gray-700 mb-2">
-                          <svg className="w-4 h-4 mr-2 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-                          </svg>
+                          <FaFolder className="w-4 h-4 mr-2 text-blue-950" />
                           Category *
                         </label>
                         <select
@@ -366,9 +373,7 @@ export default function AdminDashboard() {
 
                     <div className="group">
                       <label htmlFor="excerpt" className="flex items-center text-sm font-semibold text-gray-700 mb-2">
-                        <svg className="w-4 h-4 mr-2 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" />
-                        </svg>
+                        <FaFileAlt className="w-4 h-4 mr-2 text-blue-950" />
                         Excerpt
                       </label>
                       <textarea
@@ -383,28 +388,80 @@ export default function AdminDashboard() {
                     </div>
 
                     <div className="group">
-                      <label htmlFor="image" className="flex items-center text-sm font-semibold text-gray-700 mb-2">
-                        <svg className="w-4 h-4 mr-2 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                        </svg>
-                        Image URL
+                      <label className="flex items-center text-sm font-semibold text-gray-700 mb-2">
+                        <FaImage className="w-4 h-4 mr-2 text-blue-950" />
+                        Post Image
                       </label>
-                      <input
-                        type="url"
-                        id="image"
-                        name="image"
-                        value={formData.image}
-                        onChange={handleInputChange}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 bg-white hover:border-gray-400"
-                        placeholder="https://example.com/image.jpg"
-                      />
+                      <CldUploadWidget
+                        uploadPreset={process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET || "tech-blogs"}
+                        onSuccess={(results) => {
+                          if (results?.info && typeof results.info === 'object' && 'secure_url' in results.info) {
+                            const info = results.info as { secure_url: string };
+                            if (info.secure_url) {
+                              setFormData(prev => ({
+                                ...prev,
+                                image: info.secure_url
+                              }));
+                            }
+                          }
+                        }}
+                        onError={(error) => {
+                          console.error('Upload error:', error);
+
+                          // Provide more specific error messages
+                          let errorMessage = 'Failed to upload image';
+
+                          if (typeof error === 'object' && error !== null) {
+                            const status = String(error.status);
+                            if (status === '400') {
+                              errorMessage = 'Invalid file format or file too large';
+                            } else if (status === '401') {
+                              errorMessage = 'Authentication failed. Please check your upload settings';
+                            } else if (status === '413') {
+                              errorMessage = 'File is too large. Please choose a smaller image';
+                            } else if (status === '415') {
+                              errorMessage = 'Unsupported file type. Please use JPG, PNG, or GIF';
+                            } else if ('message' in error && error.message) {
+                              errorMessage = `Upload failed: ${error.message}`;
+                            }
+                          } else if (typeof error === 'string') {
+                            errorMessage = `Upload failed: ${error}`;
+                          }
+
+                          setMessage(errorMessage);
+                        }}
+                      >
+                        {({ open }) => (
+                          <div className="space-y-3">
+                            <button
+                              type="button"
+                              onClick={() => open()}
+                              className="w-full px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg text-gray-600 hover:border-indigo-500 hover:text-indigo-500 transition-all duration-200 flex items-center justify-center"
+                            >
+                              <FaImage className="w-5 h-5 mr-2" />
+                              {formData.image ? 'Change Image' : 'Upload Image'}
+                            </button>
+                            {formData.image && (
+                              <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
+                                <img
+                                  src={formData.image}
+                                  alt="Preview"
+                                  className="w-16 h-16 object-cover rounded"
+                                />
+                                <div className="flex-1">
+                                  <p className="text-sm text-gray-700">Image uploaded successfully</p>
+                                  <p className="text-xs text-gray-500 truncate">{formData.image}</p>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </CldUploadWidget>
                     </div>
 
                     <div className="group">
                       <label htmlFor="content" className="flex items-center text-sm font-semibold text-gray-700 mb-2">
-                        <svg className="w-4 h-4 mr-2 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                        </svg>
+                        <FaFileAlt className="w-4 h-4 mr-2 text-blue-950" />
                         Content *
                       </label>
                       <textarea
@@ -422,9 +479,7 @@ export default function AdminDashboard() {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div className="group">
                         <label htmlFor="tags" className="flex items-center text-sm font-semibold text-gray-700 mb-2">
-                          <svg className="w-4 h-4 mr-2 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
-                          </svg>
+                          <FaTag className="w-4 h-4 mr-2 text-blue-950" />
                           Tags (comma-separated)
                         </label>
                         <input
@@ -460,17 +515,12 @@ export default function AdminDashboard() {
                       >
                         {isSubmitting ? (
                           <>
-                            <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                            </svg>
+                            <FaPlus className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" />
                             Creating...
                           </>
                         ) : (
                           <>
-                            <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                            </svg>
+                            <FaPlus className="w-5 h-5 mr-2" />
                             Create Blog Post
                           </>
                         )}
@@ -515,13 +565,15 @@ export default function AdminDashboard() {
                             </div>
                           </div>
                           <div className="flex space-x-2">
-                            <button className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-sm">
+                            <button className="bg-blue-950 hover:bg-blue-900 text-white px-3 py-1 rounded text-sm flex items-center">
+                              <FaEdit className="mr-1" />
                               Edit
                             </button>
                             <button
                               onClick={() => handleDeletePost(post._id)}
-                              className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-sm"
+                              className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-sm flex items-center"
                             >
+                              <FaTrash className="mr-1" />
                               Delete
                             </button>
                           </div>
