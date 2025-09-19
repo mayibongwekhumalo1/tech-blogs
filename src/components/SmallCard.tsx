@@ -75,27 +75,27 @@ const SmallCard: React.FC<SmallCardProps> = ({ slug, title, category, date, imag
 
   return (
     <div
-      className={`flex w-full max-w-[390px] h-[130px] bg-transparent my-3  transition-all duration-300 hover:shadow-lg ${
+      className={`flex w-full max-w-sm sm:max-w-md md:max-w-lg h-auto min-h-[130px] bg-transparent my-3 transition-all duration-300 hover:shadow-lg ${
         onClick ? 'cursor-pointer' : ''
       }`}
       onClick={onClick}
     >
         {/* image holder */}
-        <div className="w-[120px] bg-blue-300 flex items-center justify-center relative">
-            <CldImage fill src={displayImage} alt={displayTitle} className="object-cover" />
+        <div className="w-24 sm:w-28 md:w-32 bg-blue-300 flex items-center justify-center relative flex-shrink-0">
+            <CldImage fill src={displayImage} alt={displayTitle} className="object-cover rounded" />
         </div>
 
-        <div className="text-black px-2.5 py-1.5 space-y-2.5">
-            <span className='border rounded mb-2'>{displayCategory}</span>
+        <div className="text-black px-2.5 py-1.5 space-y-2.5 flex-1">
+            <span className='border rounded mb-2 inline-block text-xs sm:text-sm px-2 py-1'>{displayCategory}</span>
 
-            <h6>
+            <h6 className="text-sm sm:text-base md:text-lg font-semibold leading-tight">
                 {displayTitle}
             </h6>
 
             {/* date for the post */}
-            <div className="flex space-x-2.5 items-center">
+            <div className="flex space-x-2.5 items-center text-xs sm:text-sm">
                 {/* date icon */}
-                <MdOutlineDateRange />
+                <MdOutlineDateRange className="w-4 h-4" />
                 {/* date */}
                 <span>
                     {displayDate}

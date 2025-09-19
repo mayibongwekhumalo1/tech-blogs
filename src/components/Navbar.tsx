@@ -92,17 +92,16 @@ const SuperHeader = () => {
           <div className="flex justify-between items-center">
             {/* Logo */}
             <div className="flex-shrink-0 flex items-center">
-              <Link href="/" className="text-2xl font-bold text-secondary w-20 h-full">
-              
+              <Link href="/" className="text-xl sm:text-2xl font-bold text-secondary w-16 sm:w-20 h-full">
+
               <Image
                   src ='/logo.png'
                   width={100}
                   height={100}
                   alt='logo'
-
-                  className='w-full h-full'
+                  className='w-full h-full object-contain'
               />
-              
+
               </Link>
             </div>
 

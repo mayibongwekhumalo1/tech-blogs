@@ -193,7 +193,7 @@ const Home: React.FC = () => {
 
             {posts.length > 7 && (
               <div
-                className="bg-white rounded-lg shadow-md p-6 mb-12 flex items-center cursor-pointer"
+                className="bg-white rounded-lg shadow-md p-4 sm:p-6 mb-12 flex flex-col sm:flex-row items-center cursor-pointer"
                 onClick={() => handlePostClick(posts[7])}
                 role="button"
                 tabIndex={0}
@@ -202,38 +202,38 @@ const Home: React.FC = () => {
                 }}
               >
                 {/* img div */}
-                <div className="w-[40%] mr-6">
+                <div className="w-full sm:w-[40%] mr-0 sm:mr-6 mb-4 sm:mb-0">
                   {posts[7].image ? (
                     <CldImage
                       src={posts[7].image}
                       alt={posts[7].title}
                       width={400}
                       height={250}
-                      className="rounded-lg object-cover w-full h-48"
+                      className="rounded-lg object-cover w-full h-32 sm:h-48"
                     />
                   ) : (
-                    <div className="bg-gray-200 rounded-lg w-full h-48 flex items-center justify-center text-gray-500">
+                    <div className="bg-gray-200 rounded-lg w-full h-32 sm:h-48 flex items-center justify-center text-gray-500">
                       No Image
                     </div>
                   )}
                 </div>
 
                 {/* text div */}
-                <div className="text-div">
-                  <span className="text-blue-600 font-semibold">{posts[7].category?.name || 'Technology'}</span>
-                  <h3 className="text-xl font-bold mt-1 mb-2">{posts[7].title}</h3>
-                  <div className="flex items-center text-sm text-gray-500 mb-4">
+                <div className="text-div w-full sm:w-[60%]">
+                  <span className="text-blue-600 font-semibold text-sm sm:text-base">{posts[7].category?.name || 'Technology'}</span>
+                  <h3 className="text-lg sm:text-xl font-bold mt-1 mb-2 leading-tight">{posts[7].title}</h3>
+                  <div className="flex flex-wrap items-center text-xs sm:text-sm text-gray-500 mb-4 gap-1">
                     <span>by {posts[7].author?.name || 'Admin'}</span>
-                    <span className="mx-2">•</span>
+                    <span className="mx-1 sm:mx-2">•</span>
                     <span>{new Date(posts[7].createdAt).toLocaleDateString()}</span>
-                    <span className="mx-2">•</span>
+                    <span className="mx-1 sm:mx-2">•</span>
                     <span>5 Mins</span>
                   </div>
-                  <p className="text-gray-700 mb-4">
+                  <p className="text-gray-700 mb-4 text-sm sm:text-base leading-relaxed">
                     {posts[7].excerpt || 'Browned butter and brown sugar area caramelly goodness, crispy edges and soft centers rare melty little puddles of chocolate first favorite thing about these browned butter.'}
                   </p>
                   <button
-                    className="px-2 py-0.5 border border-gray-200 flex items-center space-x-2"
+                    className="px-2 py-0.5 border border-gray-200 flex items-center space-x-2 text-sm sm:text-base"
                     onClick={e => {
                       e.stopPropagation();
                       handlePostClick(posts[7]);
