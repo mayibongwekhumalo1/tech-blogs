@@ -75,7 +75,7 @@ const SmallCard: React.FC<SmallCardProps> = ({ slug, title, category, date, imag
 
   return (
     <div
-      className={`flex w-full max-w-[390px] h-[130px] bg-transparent my-3  transition-all duration-300 hover:shadow-lg hover:scale-105 ${
+      className={`flex w-full max-w-[390px] h-[130px] bg-transparent my-3  transition-all duration-300 hover:shadow-lg ${
         onClick ? 'cursor-pointer' : ''
       }`}
       onClick={onClick}

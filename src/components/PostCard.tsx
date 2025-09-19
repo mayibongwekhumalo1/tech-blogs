@@ -1,8 +1,5 @@
-// components/PostCard.tsx
-
-"use client"
-
 import React from 'react';
+import { CldImage } from 'next-cloudinary';
 
 interface PostCardProps {
   category: string;
@@ -14,6 +11,7 @@ interface PostCardProps {
   showReadMore?: boolean;
   onClick?: () => void;
   slug?: string;
+  image?: string;
 }
 
 const PostCard: React.FC<PostCardProps> = ({
@@ -25,7 +23,8 @@ const PostCard: React.FC<PostCardProps> = ({
   excerpt,
   showReadMore = false,
   onClick,
-  slug
+  slug,
+  image
 }) => {
   const getCategoryColor = (cat: string) => {
     switch (cat.toLowerCase()) {
@@ -39,7 +38,7 @@ const PostCard: React.FC<PostCardProps> = ({
 
   return (
     <div
-      className={`bg-white rounded-lg shadow-md p-4 mb-4 transition-all duration-300 hover:shadow-lg hover:scale-105 cursor-pointer ${
+      className={`bg-white rounded-lg shadow-md p-4 mb-4 transition-all duration-300 hover:shadow-lg cursor-pointer ${
         onClick ? 'cursor-pointer' : ''
       }`}
       onClick={onClick}
