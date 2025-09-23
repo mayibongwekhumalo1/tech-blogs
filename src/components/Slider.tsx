@@ -1,3 +1,5 @@
+"use client"
+
 import Slider from 'react-slick';
 import Link from 'next/link';
 

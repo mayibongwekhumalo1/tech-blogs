@@ -5,6 +5,38 @@ import connectToDatabase from '@/lib/mongodb';
 import Post from '@/lib/models/Post';
 import Category from '@/lib/models/Category';
 
+export async function GET(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    await connectToDatabase();
+
+    const { id } = await params;
+    const post = await Post.findById(id)
+      .populate('author', 'name email image')
+      .populate('category', 'name slug color');
+
+    if (!post) {
+      return NextResponse.json(
+        { error: 'Post not found' },
+        { status: 404 }
+      );
+    }
+
+    // Increment views
+    await Post.findByIdAndUpdate(post._id, { $inc: { views: 1 } });
+
+    return NextResponse.json(post);
+  } catch (error) {
+    console.error('GET /api/posts/[id] error:', error);
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    );
+  }
+}
+
 export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -116,7 +148,7 @@ export async function PUT(
         .replace(/(^-|-$)/g, '');
 
       // Check if slug is unique (excluding current post)
-      const existingPost = await Post.findOne({ slug, _id: { $ne: id } });
+      const existingPost = await Post.findOne({ slug, _id: { $ne: post._id } });
       if (existingPost) {
         return NextResponse.json(
           { error: 'Post with this title already exists' },
@@ -126,8 +158,8 @@ export async function PUT(
     }
 
     // Update the post
-    const updatedPost = await Post.findByIdAndUpdate(
-      id,
+    const updatedPost = await Post.findOneAndUpdate(
+      { _id: id },
       {
         title: title.trim(),
         slug,
@@ -145,6 +177,63 @@ export async function PUT(
     return NextResponse.json(updatedPost);
   } catch (error) {
     console.error('PUT /api/posts/[id] error:', error);
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    );
+  }
+}
+
+export async function POST(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const session = await getServerSession(authOptions);
+    if (!session?.user) {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      );
+    }
+
+    await connectToDatabase();
+
+    const { id } = await params;
+    const { action } = await request.json();
+
+    if (action !== 'like') {
+      return NextResponse.json(
+        { error: 'Invalid action' },
+        { status: 400 }
+      );
+    }
+
+    const post = await Post.findById(id);
+    if (!post) {
+      return NextResponse.json(
+        { error: 'Post not found' },
+        { status: 404 }
+      );
+    }
+
+    // Increment likes
+    const updatedPost = await Post.findOneAndUpdate(
+      { _id: id },
+      { $inc: { likes: 1 } },
+      { new: true }
+    );
+
+    if (!updatedPost) {
+      return NextResponse.json(
+        { error: 'Post not found' },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json({ likes: updatedPost.likes });
+  } catch (error) {
+    console.error('POST /api/posts/[id] error:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

@@ -1,4 +1,5 @@
 import React from 'react';
+import Link from 'next/link';
 import { CldImage } from 'next-cloudinary';
 
 interface PostCardProps {
@@ -10,7 +11,7 @@ interface PostCardProps {
   excerpt?: string;
   showReadMore?: boolean;
   onClick?: () => void;
-  slug?: string;
+  id?: string;
   image?: string;
 }
 
@@ -23,7 +24,7 @@ const PostCard: React.FC<PostCardProps> = ({
   excerpt,
   showReadMore = false,
   onClick,
-  slug,
+  id,
   image
 }) => {
   const getCategoryColor = (cat: string) => {
@@ -36,13 +37,8 @@ const PostCard: React.FC<PostCardProps> = ({
     }
   };
 
-  return (
-    <div
-      className={`bg-white rounded-lg shadow-md p-3 sm:p-4 mb-4 transition-all duration-300 hover:shadow-lg ${
-        onClick ? 'cursor-pointer' : ''
-      }`}
-      onClick={onClick}
-    >
+  const content = (
+    <>
       <span className={`font-semibold text-sm sm:text-base ${getCategoryColor(category)}`}>{category}</span>
       <h3 className="text-base sm:text-lg md:text-xl font-bold mt-1 mb-2 leading-tight">{title}</h3>
       {excerpt && <p className="text-gray-700 mb-3 text-sm sm:text-base leading-relaxed">{excerpt}</p>}
@@ -56,6 +52,27 @@ const PostCard: React.FC<PostCardProps> = ({
       {showReadMore && (
         <button className="text-blue-600 font-semibold hover:underline mt-3 text-sm sm:text-base">Read More</button>
       )}
+    </>
+  );
+
+  if (id) {
+    return (
+      <Link href={`/posts/${id}`}>
+        <div className="bg-white rounded-lg shadow-md p-3 sm:p-4 mb-4 transition-all duration-300 hover:shadow-lg cursor-pointer">
+          {content}
+        </div>
+      </Link>
+    );
+  }
+
+  return (
+    <div
+      className={`bg-white rounded-lg shadow-md p-3 sm:p-4 mb-4 transition-all duration-300 hover:shadow-lg ${
+        onClick ? 'cursor-pointer' : ''
+      }`}
+      onClick={onClick}
+    >
+      {content}
     </div>
   );
 };
