@@ -1,6 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
-import { CldImage } from 'next-cloudinary';
+import Image from 'next/image';
 
 interface PostCardProps {
   category: string;
@@ -39,6 +39,17 @@ const PostCard: React.FC<PostCardProps> = ({
 
   const content = (
     <>
+      {image && (
+        <div className="mb-3">
+          <Image
+            src={image}
+            alt={title}
+            width={400}
+            height={200}
+            className="w-full h-32 sm:h-40 object-cover rounded-lg"
+          />
+        </div>
+      )}
       <span className={`font-semibold text-sm sm:text-base ${getCategoryColor(category)}`}>{category}</span>
       <h3 className="text-base sm:text-lg md:text-xl font-bold mt-1 mb-2 leading-tight">{title}</h3>
       {excerpt && <p className="text-gray-700 mb-3 text-sm sm:text-base leading-relaxed">{excerpt}</p>}

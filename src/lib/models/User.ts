@@ -64,7 +64,6 @@ const UserSchema = new mongoose.Schema<IUser>(
 );
 
 // Create indexes
-UserSchema.index({ email: 1 }, { unique: true });
 UserSchema.index({ role: 1 });
 
 // Pre-save middleware to hash password

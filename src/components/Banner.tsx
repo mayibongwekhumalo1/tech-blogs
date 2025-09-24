@@ -88,7 +88,7 @@ const Hero = () => {
         </div>
 
         <div className="space-y-6">
-          {sidePosts.map((post, index) => (
+          {sidePosts.map((post) => (
             <div key={post._id} className="rounded-lg shadow-md p-4 relative overflow-hidden hover:scale-105 hover:shadow-xl transition-all duration-300 cursor-pointer group" onClick={() => setSelectedPost(post)}>
               {post.image && (
                 <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${post.image})` }}></div>

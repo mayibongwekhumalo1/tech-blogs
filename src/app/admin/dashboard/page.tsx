@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import AdminGuard from '../../../components/AdminGuard';
 import { CldUploadWidget } from 'next-cloudinary';
+import Image from 'next/image';
 import {
   FaBook,
   FaCheckCircle,
@@ -71,8 +72,8 @@ export default function AdminDashboard() {
         totalUsers: usersData.users?.length || 0,
         publishedPosts: postsData.posts?.filter((p: PostWithDetails) => p.published).length || 0,
       });
-    } catch (_error) {
-      console.error('Failed to fetch stats:', _error);
+    } catch {
+      console.error('Failed to fetch stats');
     }
   };
 
@@ -81,8 +82,8 @@ export default function AdminDashboard() {
       const res = await fetch('/api/posts?limit=50');
       const data = await res.json();
       setPosts(data.posts || []);
-    } catch (_error) {
-      console.error('Failed to fetch posts:', _error);
+    } catch {
+      console.error('Failed to fetch posts');
     }
   };
 
@@ -91,8 +92,8 @@ export default function AdminDashboard() {
       const res = await fetch('/api/categories');
       const data = await res.json();
       setCategories(data.categories || []);
-    } catch (_error) {
-      console.error('Failed to fetch categories:', _error);
+    } catch {
+      console.error('Failed to fetch categories');
     }
   };
 
@@ -131,7 +132,7 @@ export default function AdminDashboard() {
       } else {
         setMessage(data.error || 'Failed to create blog post');
       }
-    } catch (_error) {
+    } catch {
       setMessage('An error occurred while creating the blog post');
     } finally {
       setIsSubmitting(false);
@@ -154,7 +155,7 @@ export default function AdminDashboard() {
         const data = await response.json();
         setMessage(data.error || 'Failed to delete post');
       }
-    } catch (_error) {
+    } catch {
       setMessage('An error occurred while deleting the post');
     }
   };
@@ -443,9 +444,11 @@ export default function AdminDashboard() {
                             </button>
                             {formData.image && (
                               <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
-                                <img
+                                <Image
                                   src={formData.image}
                                   alt="Preview"
+                                  width={64}
+                                  height={64}
                                   className="w-16 h-16 object-cover rounded"
                                 />
                                 <div className="flex-1">
