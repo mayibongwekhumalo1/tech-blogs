@@ -83,7 +83,6 @@ const PostSchema = new mongoose.Schema<IPost>(
 );
 
 // Create indexes
-PostSchema.index({ slug: 1 }, { unique: true });
 PostSchema.index({ author: 1 });
 PostSchema.index({ category: 1 });
 PostSchema.index({ published: 1 });

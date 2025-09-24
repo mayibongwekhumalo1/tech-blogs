@@ -1,6 +1,7 @@
 "use client";
 
 import React from 'react';
+import Image from 'next/image';
 
 interface Post {
   _id: string;
@@ -58,9 +59,11 @@ const PostModal: React.FC<PostModalProps> = ({ post, isOpen, onClose }) => {
           {/* Header image */}
           {post.image && (
             <div className="relative h-64 overflow-hidden">
-              <img
+              <Image
                 src={post.image}
                 alt={post.title}
+                width={800}
+                height={256}
                 className="w-full h-full object-cover"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
@@ -91,9 +94,11 @@ const PostModal: React.FC<PostModalProps> = ({ post, isOpen, onClose }) => {
             {/* Author */}
             <div className="flex items-center mb-6">
               {post.author.image && (
-                <img
+                <Image
                   src={post.author.image}
                   alt={post.author.name}
+                  width={40}
+                  height={40}
                   className="w-10 h-10 rounded-full mr-3"
                 />
               )}
