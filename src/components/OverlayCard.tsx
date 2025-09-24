@@ -1,4 +1,5 @@
 import React from 'react';
+import Link from 'next/link';
 import { CldImage } from 'next-cloudinary';
 
 export interface OverlayCardProps {
@@ -8,8 +9,8 @@ export interface OverlayCardProps {
   excerpt?: string;
   author?: string;
   readTime: string;
-  onClick: () => void;
-  slug: string;
+  onClick?: () => void;
+  id: string;
   image?: string;
 }
 
@@ -19,13 +20,11 @@ const OverlayCard: React.FC<OverlayCardProps> = ({
   excerpt,
   author,
   onClick,
+  id,
   image,
 }) => {
-  return (
-    <div
-      className="relative w-full h-full overflow-hidden group cursor-pointer"
-      onClick={onClick}
-    >
+  const content = (
+    <div className="relative w-full h-full overflow-hidden group cursor-pointer">
       {image && (
         <CldImage
           fill
@@ -43,6 +42,20 @@ const OverlayCard: React.FC<OverlayCardProps> = ({
           </p>
         </div>
       </div>
+    </div>
+  );
+
+  if (id) {
+    return (
+      <Link href={`/posts/${id}`}>
+        {content}
+      </Link>
+    );
+  }
+
+  return (
+    <div onClick={onClick}>
+      {content}
     </div>
   );
 };
