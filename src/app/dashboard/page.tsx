@@ -4,6 +4,7 @@ import { useSession, signOut } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { CldUploadWidget } from 'next-cloudinary';
+import Image from 'next/image';
 
 import {
   FaRegEye,
@@ -170,7 +171,7 @@ export default function Dashboard() {
       } else {
         setMessage(data.error || `Failed to ${isEditing ? 'update' : 'create'} blog post`);
       }
-    } catch (error) {
+    } catch {
       setMessage(`An error occurred while ${editingPost ? 'updating' : 'creating'} the blog post`);
     } finally {
       setIsSubmitting(false);
@@ -229,8 +230,8 @@ export default function Dashboard() {
         const data = await response.json();
         setMessage(data.error || 'Failed to delete post');
       }
-    } catch (error) {
-      setMessage('An error occurred while deleting the post');
+    } catch {
+      setMessage('An error occurred while deleting the post',);
     }
   };
 
@@ -446,9 +447,11 @@ export default function Dashboard() {
                     <div key={post._id} className="bg-gray-50 rounded-lg p-4 hover:bg-gray-100 transition-all duration-200">
                       <div className="flex items-start space-x-3">
                         {post.image ? (
-                          <img
+                          <Image
                             src={post.image}
                             alt={post.title}
+                            width={64}
+                            height={64}
                             className="w-16 h-16 object-cover rounded-lg flex-shrink-0"
                           />
                         ) : (
@@ -707,9 +710,11 @@ export default function Dashboard() {
                         </button>
                         {formData.image && (
                           <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
-                            <img
+                            <Image
                               src={formData.image}
                               alt="Preview"
+                              width={64}
+                              height={64}
                               className="w-16 h-16 object-cover rounded"
                             />
                             <div className="flex-1">
