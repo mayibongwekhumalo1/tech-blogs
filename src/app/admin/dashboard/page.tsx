@@ -33,13 +33,22 @@ type PostWithDetails = {
   content?: string;
 };
 
+type CommentWithDetails = {
+  _id: string;
+  content: string;
+  author?: { name: string; email?: string; image?: string };
+  post?: { title: string };
+  approved: boolean;
+  createdAt: string | Date;
+};
+
 
 export default function AdminDashboard() {
   const { data: session } = useSession();
   const router = useRouter();
   const [stats, setStats] = useState({ totalPosts: 0, totalUsers: 0, publishedPosts: 0 });
   const [posts, setPosts] = useState<PostWithDetails[]>([]);
-  const [comments, setComments] = useState<any[]>([]);
+  const [comments, setComments] = useState<CommentWithDetails[]>([]);
   const [categories, setCategories] = useState<{ _id: string; name: string }[]>([]);
   const [activeTab, setActiveTab] = useState('overview');
   const [formData, setFormData] = useState({
@@ -684,7 +693,7 @@ export default function AdminDashboard() {
                 <div>
                   <h3 className="text-lg font-medium text-gray-900 mb-4">Manage Comments</h3>
                   <div className="space-y-4">
-                    {comments.map((comment: any) => (
+                    {comments.map((comment: CommentWithDetails) => (
                       <div key={comment._id} className="border border-gray-200 rounded-lg p-4">
                         <div className="flex justify-between items-start">
                           <div className="flex-1">
