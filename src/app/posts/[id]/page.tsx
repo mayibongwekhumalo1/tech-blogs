@@ -5,7 +5,6 @@ import { useSession } from 'next-auth/react';
 import { useRouter, useParams } from 'next/navigation';
 import { FaThumbsUp, FaComment, FaShare } from 'react-icons/fa';
 import { CldImage } from 'next-cloudinary';
-import Image from 'next/image';
 
 interface Post {
   _id: string;
@@ -107,7 +106,7 @@ const PostPage: React.FC = () => {
 
       if (response.ok) {
         const comment = await response.json();
-        setComments([...comments, comment]);
+        setComments([comment, ...comments]); // Add new comment at the top (newest first)
         setNewComment('');
       }
     } catch (error) {
@@ -182,11 +181,9 @@ const PostPage: React.FC = () => {
         {/* Author */}
         <div className="flex items-center mb-8">
           {post.author.image && (
-            <Image
+            <img
               src={post.author.image}
               alt={post.author.name}
-              width={48}
-              height={48}
               className="w-12 h-12 rounded-full mr-4"
             />
           )}
@@ -268,17 +265,15 @@ const PostPage: React.FC = () => {
             {comments.map((comment) => (
               <div key={comment._id} className="bg-white p-6 rounded-lg shadow-sm border">
                 <div className="flex items-center mb-4">
-                  {comment.author.image && (
-                    <Image
+                  {comment.author?.image && (
+                    <img
                       src={comment.author.image}
                       alt={comment.author.name}
-                      width={32}
-                      height={32}
                       className="w-8 h-8 rounded-full mr-3"
                     />
                   )}
                   <div>
-                    <p className="font-semibold text-gray-900">{comment.author.name}</p>
+                    <p className="font-semibold text-gray-900">{comment.author?.name || 'Anonymous'}</p>
                     <p className="text-sm text-gray-500">
                       {new Date(comment.createdAt).toLocaleDateString('en-US', {
                         year: 'numeric',

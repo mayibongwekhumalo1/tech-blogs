@@ -1,7 +1,9 @@
 "use client";
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { useSession } from 'next-auth/react';
 import Image from 'next/image';
+import { FaThumbsUp, FaComment, FaShare } from 'react-icons/fa';
 
 interface Post {
   _id: string;
@@ -12,9 +14,19 @@ interface Post {
   image?: string;
   category: { name: string; slug: string; color?: string };
   createdAt: string;
-  author: { name: string; email: string; image?: string };
+  author?: { name: string; email: string; image?: string };
   published: boolean;
   featured: boolean;
+  likes?: number;
+  views?: number;
+}
+
+interface Comment {
+  _id: string;
+  content: string;
+  author: { name: string; email: string; image?: string };
+  createdAt: string;
+  likes: number;
 }
 
 interface PostModalProps {
@@ -24,6 +36,96 @@ interface PostModalProps {
 }
 
 const PostModal: React.FC<PostModalProps> = ({ post, isOpen, onClose }) => {
+  const { data: session } = useSession();
+  const [comments, setComments] = useState<Comment[]>([]);
+  const [newComment, setNewComment] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const [currentLikes, setCurrentLikes] = useState(post?.likes || 0);
+
+  useEffect(() => {
+    if (post && isOpen) {
+      fetchComments();
+      setCurrentLikes(post.likes || 0);
+    }
+  }, [post, isOpen]);
+
+  const fetchComments = async () => {
+    if (!post) return;
+    try {
+      const response = await fetch(`/api/comments?postId=${post._id}`);
+      if (response.ok) {
+        const data = await response.json();
+        // Sort comments by creation date (newest first)
+        const sortedComments = data.comments.sort((a: Comment, b: Comment) =>
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        );
+        setComments(sortedComments);
+      }
+    } catch (error) {
+      console.error('Error fetching comments:', error);
+    }
+  };
+
+  const handleLike = async () => {
+    if (!post) return;
+    try {
+      const response = await fetch(`/api/posts/${post._id}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'like' }),
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setCurrentLikes(data.likes);
+      }
+    } catch (error) {
+      console.error('Error liking post:', error);
+    }
+  };
+
+  const handleCommentSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newComment.trim() || !post || !session) return;
+
+    setSubmitting(true);
+    try {
+      const response = await fetch('/api/comments', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          content: newComment,
+          postId: post._id,
+        }),
+      });
+
+      if (response.ok) {
+        const comment = await response.json();
+        setComments([...comments, comment]);
+        setNewComment('');
+      }
+    } catch (error) {
+      console.error('Error submitting comment:', error);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleDeleteComment = async (commentId: string) => {
+    if (!confirm('Are you sure you want to delete this comment?')) return;
+
+    try {
+      const response = await fetch(`/api/comments/${commentId}`, {
+        method: 'DELETE',
+      });
+
+      if (response.ok) {
+        setComments(comments.filter(c => c._id !== commentId));
+      }
+    } catch (error) {
+      console.error('Error deleting comment:', error);
+    }
+  };
+
   if (!isOpen || !post) return null;
 
   const getCategoryColor = (cat: string) => {
@@ -53,6 +155,32 @@ const PostModal: React.FC<PostModalProps> = ({ post, isOpen, onClose }) => {
         >
           ✕
         </button>
+
+        {/* Admin Controls */}
+        {session?.user?.role === 'admin' && (
+          <div className="absolute top-4 left-4 z-10 flex space-x-2">
+            <button
+              onClick={() => {
+                // TODO: Implement edit functionality
+                alert('Edit functionality to be implemented');
+              }}
+              className="px-3 py-1 bg-blue-600 text-white text-sm rounded hover:bg-blue-700 transition-colors duration-200"
+            >
+              Edit Post
+            </button>
+            <button
+              onClick={() => {
+                if (confirm('Are you sure you want to delete this post?')) {
+                  // TODO: Implement delete functionality
+                  alert('Delete functionality to be implemented');
+                }
+              }}
+              className="px-3 py-1 bg-red-600 text-white text-sm rounded hover:bg-red-700 transition-colors duration-200"
+            >
+              Delete Post
+            </button>
+          </div>
+        )}
 
         {/* Modal content */}
         <div className="overflow-y-auto max-h-[90vh]">
@@ -93,18 +221,18 @@ const PostModal: React.FC<PostModalProps> = ({ post, isOpen, onClose }) => {
 
             {/* Author */}
             <div className="flex items-center mb-6">
-              {post.author.image && (
+              {post.author?.image && (
                 <Image
                   src={post.author.image}
-                  alt={post.author.name}
+                  alt={post.author?.name || 'Author'}
                   width={40}
                   height={40}
                   className="w-10 h-10 rounded-full mr-3"
                 />
               )}
               <div>
-                <p className="font-semibold text-gray-900">by {post.author.name}</p>
-                <p className="text-sm text-gray-500">{post.author.email}</p>
+                <p className="font-semibold text-gray-900">by {post.author?.name || 'Unknown Author'}</p>
+                <p className="text-sm text-gray-500">{post.author?.email || 'No email'}</p>
               </div>
             </div>
 
@@ -127,16 +255,19 @@ const PostModal: React.FC<PostModalProps> = ({ post, isOpen, onClose }) => {
             <div className="mt-8 pt-6 border-t border-gray-200">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-4">
-                  <button className="flex items-center space-x-2 text-gray-600 hover:text-blue-600 transition-colors duration-200">
-                    <span>👍</span>
-                    <span>Like</span>
+                  <button
+                    onClick={handleLike}
+                    className="flex items-center space-x-2 text-gray-600 hover:text-blue-600 transition-colors duration-200"
+                  >
+                    <FaThumbsUp />
+                    <span>Like ({currentLikes})</span>
                   </button>
                   <button className="flex items-center space-x-2 text-gray-600 hover:text-blue-600 transition-colors duration-200">
-                    <span>💬</span>
-                    <span>Comment</span>
+                    <FaComment />
+                    <span>Comment ({comments.length})</span>
                   </button>
                   <button className="flex items-center space-x-2 text-gray-600 hover:text-blue-600 transition-colors duration-200">
-                    <span>📤</span>
+                    <FaShare />
                     <span>Share</span>
                   </button>
                 </div>
@@ -146,6 +277,83 @@ const PostModal: React.FC<PostModalProps> = ({ post, isOpen, onClose }) => {
                 >
                   Close
                 </button>
+              </div>
+            </div>
+
+            {/* Comments Section */}
+            <div className="mt-8 pt-6 border-t border-gray-200">
+              <h3 className="text-lg font-semibold mb-4">Comments</h3>
+
+              {/* Comment Form */}
+              {session ? (
+                <form onSubmit={handleCommentSubmit} className="mb-6">
+                  <textarea
+                    value={newComment}
+                    onChange={(e) => setNewComment(e.target.value)}
+                    placeholder="Write a comment..."
+                    className="w-full p-3 border border-gray-300 rounded-lg resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    rows={3}
+                    required
+                  />
+                  <button
+                    type="submit"
+                    disabled={submitting}
+                    className="mt-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 disabled:opacity-50"
+                  >
+                    {submitting ? 'Posting...' : 'Post Comment'}
+                  </button>
+                </form>
+              ) : (
+                <div className="mb-6 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                  <p className="text-yellow-800 text-sm">Please <a href="/auth/signin" className="underline">sign in</a> to comment.</p>
+                </div>
+              )}
+
+              {/* Comments List */}
+              <div className="space-y-4">
+                {comments.map((comment) => (
+                  <div key={comment._id} className="bg-gray-50 p-4 rounded-lg">
+                    <div className="flex items-start justify-between">
+                      <div className="flex items-center mb-2">
+                        {comment.author?.image && (
+                          <img
+                            src={comment.author.image}
+                            alt={comment.author.name}
+                            className="w-6 h-6 rounded-full mr-2"
+                          />
+                        )}
+                        <div>
+                          <p className="font-semibold text-sm text-gray-900">{comment.author?.name || 'Anonymous'}</p>
+                          <p className="text-xs text-gray-500">
+                            {new Date(comment.createdAt).toLocaleDateString('en-US', {
+                              year: 'numeric',
+                              month: 'short',
+                              day: 'numeric'
+                            })}
+                          </p>
+                        </div>
+                      </div>
+                      {session?.user?.role === 'admin' && (
+                        <button
+                          onClick={() => handleDeleteComment(comment._id)}
+                          className="text-red-600 hover:text-red-800 text-sm"
+                        >
+                          Delete
+                        </button>
+                      )}
+                    </div>
+                    <p className="text-gray-700 text-sm">{comment.content}</p>
+                    <div className="flex items-center mt-2 text-xs text-gray-500">
+                      <button className="flex items-center space-x-1 hover:text-blue-600">
+                        <FaThumbsUp size={12} />
+                        <span>{comment.likes}</span>
+                      </button>
+                    </div>
+                  </div>
+                ))}
+                {comments.length === 0 && (
+                  <p className="text-gray-500 text-center py-4">No comments yet.</p>
+                )}
               </div>
             </div>
           </div>

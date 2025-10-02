@@ -62,7 +62,7 @@ const Home: React.FC = () => {
       <Banner />
 
         {/* Editor's Choice */}
-        <div className="flex justify-between items-center mb-6 px-20 mt-2.5">
+        <div className="flex justify-between items-center mb-6 px-4 md:px-20 mt-2.5">
           <h2 className="text-2xl font-bold">Editor&apos;s Choice</h2>
           <div className="flex space-x-2">
             <button className="p-2    border border-gray-200 text-red-500">
@@ -79,7 +79,7 @@ const Home: React.FC = () => {
           <div className='bg-red-500 text-red-500 w-30 h-full'>.</div>
         </div>
 
-        <div className="mb-12 mx-20 flex ">
+        <div className="mb-12 mx-4 md:mx-20 flex ">
           
             {posts.slice(0, 3).map((post) => (
               <div key={post._id} className="px-2 ">
@@ -214,15 +214,10 @@ const Home: React.FC = () => {
                   <p className="text-gray-700 mb-4 text-sm sm:text-base leading-relaxed">
                     {posts[7].excerpt || 'Browned butter and brown sugar area caramelly goodness, crispy edges and soft centers rare melty little puddles of chocolate first favorite thing about these browned butter.'}
                   </p>
-                  <Link
-                    href={`/posts/${posts[7]._id}`}
-                    className="px-2 py-0.5 border border-gray-200 flex items-center space-x-2 text-sm sm:text-base"
-                    onClick={e => e.stopPropagation()}
-                    tabIndex={-1}
-                  >
+                  <span className="px-2 py-0.5 border border-gray-200 flex items-center space-x-2 text-sm sm:text-base">
                     Read More
                     <span className='flex flex-col ml-1.5 text-red-400 rotate-12'><FaArrowUp /> <FaArrowUp /></span>
-                  </Link>
+                  </span>
                 </div>
               </div>
               </Link>
@@ -259,14 +254,9 @@ const Home: React.FC = () => {
                       <span>{post.author?.name ? `by ${post.author.name}` : 'by Admin'}</span>
                     </div>
                     <p className="text-gray-700 text-sm md:text-base line-clamp-3 mb-2">{post.excerpt}</p>
-                    <Link
-                      href={`/posts/${post._id}`}
-                      className="mt-auto text-red-500 text-xs md:text-sm font-semibold hover:underline self-start"
-                      onClick={e => e.stopPropagation()}
-                      tabIndex={-1}
-                    >
+                    <span className="mt-auto text-red-500 text-xs md:text-sm font-semibold hover:underline self-start">
                       Read More
-                    </Link>
+                    </span>
                   </div>
                 </div>
                 </Link>
@@ -293,7 +283,7 @@ const Home: React.FC = () => {
             </div>
           </div>
 
-          <div>
+          <div className="lg:fixed lg:top-24 lg:right-6 lg:w-80">
             <Sidebar />
           </div>
         </div>

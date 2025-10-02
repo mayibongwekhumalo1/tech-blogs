@@ -26,7 +26,11 @@ type PostWithDetails = {
   author?: { name: string };
   createdAt: string | Date;
   published: boolean;
-  category?: { name: string };
+  category?: { name: string; _id?: string };
+  excerpt?: string;
+  image?: string;
+  tags?: string[];
+  content?: string;
 };
 
 
@@ -35,6 +39,7 @@ export default function AdminDashboard() {
   const router = useRouter();
   const [stats, setStats] = useState({ totalPosts: 0, totalUsers: 0, publishedPosts: 0 });
   const [posts, setPosts] = useState<PostWithDetails[]>([]);
+  const [comments, setComments] = useState<any[]>([]);
   const [categories, setCategories] = useState<{ _id: string; name: string }[]>([]);
   const [activeTab, setActiveTab] = useState('overview');
   const [formData, setFormData] = useState({
@@ -48,6 +53,7 @@ export default function AdminDashboard() {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [message, setMessage] = useState('');
+  const [editingPost, setEditingPost] = useState<PostWithDetails | null>(null);
 
 
   useEffect(() => {
@@ -55,6 +61,7 @@ export default function AdminDashboard() {
       fetchStats();
       fetchPosts();
       fetchCategories();
+      fetchComments();
     }
   }, [session]);
 
@@ -97,14 +104,29 @@ export default function AdminDashboard() {
     }
   };
 
+  const fetchComments = async () => {
+    try {
+      // Fetch all comments, maybe paginated or limited
+      const res = await fetch('/api/comments?limit=100'); // Assuming we modify API to allow fetching all
+      const data = await res.json();
+      setComments(data.comments || []);
+    } catch {
+      console.error('Failed to fetch comments');
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
     setMessage('');
 
     try {
-      const response = await fetch('/api/posts', {
-        method: 'POST',
+      const isEditing = !!editingPost;
+      const url = isEditing ? `/api/posts/${editingPost._id}` : '/api/posts';
+      const method = isEditing ? 'PUT' : 'POST';
+
+      const response = await fetch(url, {
+        method,
         headers: {
           'Content-Type': 'application/json',
         },
@@ -117,7 +139,7 @@ export default function AdminDashboard() {
       const data = await response.json();
 
       if (response.ok) {
-        setMessage('Blog post created successfully!');
+        setMessage(`Blog post ${isEditing ? 'updated' : 'created'} successfully!`);
         setFormData({
           title: '',
           content: '',
@@ -127,15 +149,39 @@ export default function AdminDashboard() {
           tags: '',
           published: false,
         });
-        fetchPosts(); 
-        fetchStats(); 
+        setEditingPost(null);
+        fetchPosts();
+        fetchStats();
       } else {
-        setMessage(data.error || 'Failed to create blog post');
+        setMessage(data.error || `Failed to ${isEditing ? 'update' : 'create'} blog post`);
       }
     } catch {
-      setMessage('An error occurred while creating the blog post');
+      setMessage('An error occurred while saving the blog post');
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const handleEditPost = async (post: PostWithDetails) => {
+    try {
+      const response = await fetch(`/api/posts/${post._id}`);
+      if (response.ok) {
+        const fullPost = await response.json();
+        setEditingPost(fullPost);
+        setFormData({
+          title: fullPost.title,
+          content: fullPost.content,
+          excerpt: fullPost.excerpt || '',
+          image: fullPost.image || '',
+          category: fullPost.category._id,
+          tags: fullPost.tags?.join(', ') || '',
+          published: fullPost.published,
+        });
+        setActiveTab('create');
+      }
+    } catch (error) {
+      console.error('Failed to fetch post for editing:', error);
+      setMessage('Failed to load post for editing');
     }
   };
 
@@ -157,6 +203,26 @@ export default function AdminDashboard() {
       }
     } catch {
       setMessage('An error occurred while deleting the post');
+    }
+  };
+
+  const handleDeleteComment = async (commentId: string) => {
+    if (!confirm('Are you sure you want to delete this comment?')) return;
+
+    try {
+      const response = await fetch(`/api/comments/${commentId}`, {
+        method: 'DELETE',
+      });
+
+      if (response.ok) {
+        setMessage('Comment deleted successfully!');
+        fetchComments();
+      } else {
+        const data = await response.json();
+        setMessage(data.error || 'Failed to delete comment');
+      }
+    } catch {
+      setMessage('An error occurred while deleting the comment');
     }
   };
 
@@ -263,6 +329,7 @@ export default function AdminDashboard() {
                   { id: 'overview', label: 'Overview' },
                   { id: 'create', label: 'Create Post' },
                   { id: 'manage', label: 'Manage Posts' },
+                  { id: 'comments', label: 'Manage Comments' },
                 ].map((tab) => (
                   <button
                     key={tab.id}
@@ -325,11 +392,34 @@ export default function AdminDashboard() {
 
               {activeTab === 'create' && (
                 <div className="bg-gradient-to-br from-white to-gray-50 p-8 rounded-xl shadow-lg border border-gray-100">
-                  <div className="flex items-center mb-6">
-                    <div className="w-12 h-12 bg-blue-950 rounded-full flex items-center justify-center mr-4">
-                      <FaPlus className="text-white text-xl" />
+                  <div className="flex items-center justify-between mb-6">
+                    <div className="flex items-center">
+                      <div className="w-12 h-12 bg-blue-950 rounded-full flex items-center justify-center mr-4">
+                        <FaPlus className="text-white text-xl" />
+                      </div>
+                      <h3 className="text-2xl font-bold text-gray-900">
+                        {editingPost ? 'Edit Blog Post' : 'Create New Blog Post'}
+                      </h3>
                     </div>
-                    <h3 className="text-2xl font-bold text-gray-900">Create New Blog Post</h3>
+                    {editingPost && (
+                      <button
+                        onClick={() => {
+                          setEditingPost(null);
+                          setFormData({
+                            title: '',
+                            content: '',
+                            excerpt: '',
+                            image: '',
+                            category: '',
+                            tags: '',
+                            published: false,
+                          });
+                        }}
+                        className="px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded-lg text-sm font-medium"
+                      >
+                        Cancel Edit
+                      </button>
+                    )}
                   </div>
                   <form onSubmit={handleSubmit} className="space-y-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -524,7 +614,7 @@ export default function AdminDashboard() {
                         ) : (
                           <>
                             <FaPlus className="w-5 h-5 mr-2" />
-                            Create Blog Post
+                            {editingPost ? 'Update Blog Post' : 'Create Blog Post'}
                           </>
                         )}
                       </button>
@@ -568,7 +658,10 @@ export default function AdminDashboard() {
                             </div>
                           </div>
                           <div className="flex space-x-2">
-                            <button className="bg-blue-950 hover:bg-blue-900 text-white px-3 py-1 rounded text-sm flex items-center">
+                            <button
+                              onClick={() => handleEditPost(post)}
+                              className="bg-blue-950 hover:bg-blue-900 text-white px-3 py-1 rounded text-sm flex items-center"
+                            >
                               <FaEdit className="mr-1" />
                               Edit
                             </button>
@@ -586,11 +679,53 @@ export default function AdminDashboard() {
                   </div>
                 </div>
               )}
+
+              {activeTab === 'comments' && (
+                <div>
+                  <h3 className="text-lg font-medium text-gray-900 mb-4">Manage Comments</h3>
+                  <div className="space-y-4">
+                    {comments.map((comment: any) => (
+                      <div key={comment._id} className="border border-gray-200 rounded-lg p-4">
+                        <div className="flex justify-between items-start">
+                          <div className="flex-1">
+                            <p className="text-gray-900 mb-2">{comment.content}</p>
+                            <div className="text-sm text-gray-600">
+                              <span>By {comment.author?.name || 'Unknown'} • {new Date(comment.createdAt).toLocaleDateString()}</span>
+                              {comment.post && (
+                                <span className="ml-4">On post: {comment.post.title || 'Unknown Post'}</span>
+                              )}
+                            </div>
+                            <div className="flex items-center mt-2 space-x-2">
+                              <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                                comment.approved ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
+                              }`}>
+                                {comment.approved ? 'Approved' : 'Pending'}
+                              </span>
+                            </div>
+                          </div>
+                          <div className="flex space-x-2">
+                            <button
+                              onClick={() => handleDeleteComment(comment._id)}
+                              className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-sm flex items-center"
+                            >
+                              <FaTrash className="mr-1" />
+                              Delete
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                    {comments.length === 0 && (
+                      <p className="text-gray-500 text-center py-8">No comments found.</p>
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
       </main>
     </div>
-    </AdminGuard>
+  </AdminGuard>
   );
 }

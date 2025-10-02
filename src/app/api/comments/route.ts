@@ -13,6 +13,7 @@ interface CommentQuery {
 
 export async function GET(request: NextRequest) {
   try {
+    const session = await getServerSession(authOptions);
     await connectToDatabase();
 
     const { searchParams } = new URL(request.url);
@@ -20,33 +21,40 @@ export async function GET(request: NextRequest) {
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '10');
 
-    if (!postId) {
-      return NextResponse.json(
-        { error: 'Post ID is required' },
-        { status: 400 }
-      );
-    }
+    let query: any = { approved: true };
 
-    // Check if post exists
-    const post = await Post.findById(postId);
-    if (!post) {
-      return NextResponse.json(
-        { error: 'Post not found' },
-        { status: 404 }
-      );
+    if (postId) {
+      // Check if post exists
+      const post = await Post.findById(postId);
+      if (!post) {
+        return NextResponse.json(
+          { error: 'Post not found' },
+          { status: 404 }
+        );
+      }
+      query.post = postId;
+    } else {
+      // If no postId, only allow admin to fetch all comments
+      if (!session?.user || session.user.role !== 'admin') {
+        return NextResponse.json(
+          { error: 'Unauthorized' },
+          { status: 401 }
+        );
+      }
+      // Admin can see all comments, including unapproved
+      query = {};
     }
-
-    const query: CommentQuery = { post: postId, approved: true };
 
     const skip = (page - 1) * limit;
 
     const comments = await Comment.find(query)
       .populate('author', 'name email image')
+      .populate('post', 'title')
       .populate({
         path: 'parent',
         populate: { path: 'author', select: 'name' }
       })
-      .sort({ createdAt: 1 }) // Oldest first for threads
+      .sort({ createdAt: -1 }) // Newest first for admin
       .skip(skip)
       .limit(limit)
       .lean();

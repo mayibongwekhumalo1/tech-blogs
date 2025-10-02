@@ -12,7 +12,7 @@ interface Post {
   image?: string;
   category: { name: string; slug: string; color?: string };
   createdAt: string;
-  author: { name: string; email: string; image?: string };
+  author?: { name: string; email: string; image?: string };
   published: boolean;
   featured: boolean;
 }
