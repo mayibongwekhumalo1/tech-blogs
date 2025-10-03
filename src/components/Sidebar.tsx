@@ -6,7 +6,6 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { FaFacebookF, FaTwitter, FaInstagram, FaYoutube, FaLinkedin, FaPinterest,FaArrowRight } from 'react-icons/fa';
 import SmallCard from './SmallCard';
-import Deco from './Deco'
 
 interface Post {
   _id: string;
@@ -23,7 +22,6 @@ interface Post {
 }
 
 const Sidebar = () => {
-  const [posts, setPosts] = useState<Post[]>([]);
   const [popularPosts, setPopularPosts] = useState<Post[]>([]);
   const icons = {
     facebook: FaFacebookF,
@@ -45,16 +43,6 @@ const Sidebar = () => {
   ];
 
   useEffect(() => {
-    const fetchPosts = async () => {
-      try {
-        const response = await fetch('/api/posts?limit=5&published=true&page=1');
-        const data = await response.json();
-        setPosts(data.posts || []);
-      } catch (error) {
-        console.error('Error fetching posts:', error);
-      }
-    };
-
     const fetchPopularPosts = async () => {
       try {
         const response = await fetch('/api/posts?limit=3&published=true&page=1');
@@ -65,7 +53,6 @@ const Sidebar = () => {
       }
     };
 
-    fetchPosts();
     fetchPopularPosts();
   }, []);
 
@@ -91,6 +78,7 @@ const Sidebar = () => {
         setMessage(data.error || 'An error occurred. Please try again.');
       }
     } catch (error) {
+      console.error('Error subscribing to newsletter:', error);
       setMessage('Network error. Please try again.');
     }
     setIsLoading(false);

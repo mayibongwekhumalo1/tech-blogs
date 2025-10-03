@@ -53,10 +53,12 @@ const Home: React.FC = () => {
     fetchPosts();
 
     const handleScroll = () => {
-      if (window.scrollY >= sidebarTop - window.innerHeight / 2) {
-        setIsSidebarVisible(true);
-      }
-    };
+        if (window.scrollY >= sidebarTop - window.innerHeight / 2) {
+          setIsSidebarVisible(true);
+        } else {
+          setIsSidebarVisible(false);
+        }
+      };
 
     window.addEventListener('scroll', handleScroll);
 
@@ -346,9 +348,11 @@ const Home: React.FC = () => {
             
           </div>
 
-          <div>
-            <Sidebar />
-          </div>
+          {isSidebarVisible && (
+            <div>
+              <Sidebar />
+            </div>
+          )}
 
         
         </div>
@@ -379,7 +383,7 @@ const Home: React.FC = () => {
         <div className="md:w-1/6 flex justify-center md:justify-end mt-6 md:mt-0">
           <a
             href="#"
-            className="bg-white border border-gray-300 hover:border-gray-400 text-gray-900 flex px-5 py-2 rounded-md shadow-sm transition inline-flex items-center gap-2"
+            className="bg-white border border-gray-300 hover:border-gray-400 text-gray-900 px-5 py-2 rounded-md shadow-sm transition inline-flex items-center gap-2"
           >
             SHOP ONLINE <span className="text-md">↗</span>
           </a>

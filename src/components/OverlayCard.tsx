@@ -17,8 +17,6 @@ export interface OverlayCardProps {
 const OverlayCard: React.FC<OverlayCardProps> = ({
   title,
   date,
-  excerpt,
-  author,
   onClick,
   id,
   image,
@@ -37,6 +35,7 @@ const OverlayCard: React.FC<OverlayCardProps> = ({
       {/* Always visible title */}
       <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-2 md:p-4">
         <h3 className="text-white text-lg md:text-xl font-bold">{title}</h3>
+        <p className="text-white text-sm md:text-base">{date}</p>
       </div>
     </div>
   );
