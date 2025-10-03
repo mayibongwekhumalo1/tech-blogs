@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { v2 as cloudinary } from 'cloudinary';
+import { v2 as cloudinary, UploadApiResponse } from 'cloudinary';
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -21,7 +21,7 @@ export async function POST(request: NextRequest) {
     const buffer = Buffer.from(bytes);
 
     // Upload to Cloudinary
-    const result = await new Promise((resolve, reject) => {
+    const result: UploadApiResponse = await new Promise((resolve, reject) => {
       cloudinary.uploader.upload_stream(
         {
           folder: 'tech-blogs/categories',
@@ -29,12 +29,13 @@ export async function POST(request: NextRequest) {
         },
         (error, result) => {
           if (error) reject(error);
-          else resolve(result);
+          else if (result) resolve(result);
+          else reject(new Error('Upload failed'));
         }
       ).end(buffer);
     });
 
-    return NextResponse.json({ url: (result as any).secure_url });
+    return NextResponse.json({ url: result.secure_url });
   } catch (error) {
     console.error('Upload error:', error);
     return NextResponse.json({ error: 'Upload failed' }, { status: 500 });
