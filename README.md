@@ -49,7 +49,7 @@ Before running this project, make sure you have:
 
 3. **Set up environment variables**
 
-   Copy `.env.local.example` to `.env.local` and fill in your values:
+    Copy `.env.example` to `.env.local` and fill in your values:
 
    ```env
    # MongoDB
