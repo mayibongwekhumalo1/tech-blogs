@@ -5,6 +5,7 @@ import { useSession } from 'next-auth/react';
 import { useRouter, useParams } from 'next/navigation';
 import { FaThumbsUp, FaComment, FaShare } from 'react-icons/fa';
 import { CldImage } from 'next-cloudinary';
+import Image from 'next/image';
 
 interface Post {
   _id: string;
@@ -181,9 +182,11 @@ const PostPage: React.FC = () => {
         {/* Author */}
         <div className="flex items-center mb-8">
           {post.author.image && (
-            <img
+            <Image
               src={post.author.image}
               alt={post.author.name}
+              width={48}
+              height={48}
               className="w-12 h-12 rounded-full mr-4"
             />
           )}
@@ -266,9 +269,11 @@ const PostPage: React.FC = () => {
               <div key={comment._id} className="bg-white p-6 rounded-lg shadow-sm border">
                 <div className="flex items-center mb-4">
                   {comment.author?.image && (
-                    <img
+                    <Image
                       src={comment.author.image}
                       alt={comment.author.name}
+                      width={32}
+                      height={32}
                       className="w-8 h-8 rounded-full mr-3"
                     />
                   )}

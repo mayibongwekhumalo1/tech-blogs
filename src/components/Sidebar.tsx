@@ -1,10 +1,30 @@
 // components/Sidebar.tsx
 
 "use client"
-import React, { useState } from 'react';
-import { FaFacebookF, FaTwitter, FaInstagram, FaYoutube, FaLinkedin, FaPinterest } from 'react-icons/fa';
+import React, { useState, useEffect } from 'react';
+import Link from 'next/link';
+import Image from 'next/image';
+import { FaFacebookF, FaTwitter, FaInstagram, FaYoutube, FaLinkedin, FaPinterest,FaArrowRight } from 'react-icons/fa';
+import SmallCard from './SmallCard';
+import Deco from './Deco'
+
+interface Post {
+  _id: string;
+  slug: string;
+  title: string;
+  content: string;
+  category: { name: string; slug: string; color?: string };
+  createdAt: string;
+  author: { name: string; email: string; image?: string };
+  excerpt?: string;
+  image?: string;
+  published: boolean;
+  featured: boolean;
+}
 
 const Sidebar = () => {
+  const [posts, setPosts] = useState<Post[]>([]);
+  const [popularPosts, setPopularPosts] = useState<Post[]>([]);
   const icons = {
     facebook: FaFacebookF,
     twitter: FaTwitter,
@@ -16,6 +36,38 @@ const Sidebar = () => {
   const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState('');
+
+  const categories = [
+    { name: 'Mobile', slug: 'mobile', image: 'https://res.cloudinary.com/dxrv8lauy/image/upload/v1758792712/ecommerce-products/oy8dkgspsf2p99eqcmjt.jpg' },
+    { name: 'Technology', slug: 'technology', image: 'https://res.cloudinary.com/dxrv8lauy/image/upload/v1758792712/ecommerce-products/oy8dkgspsf2p99eqcmjt.jpg' },
+    { name: 'Gadget', slug: 'gadget', image: 'https://res.cloudinary.com/dxrv8lauy/image/upload/v1758792712/ecommerce-products/oy8dkgspsf2p99eqcmjt.jpg' },
+    { name: 'News', slug: 'news', image: 'https://res.cloudinary.com/dxrv8lauy/image/upload/v1758792712/ecommerce-products/oy8dkgspsf2p99eqcmjt.jpg'},
+  ];
+
+  useEffect(() => {
+    const fetchPosts = async () => {
+      try {
+        const response = await fetch('/api/posts?limit=5&published=true&page=1');
+        const data = await response.json();
+        setPosts(data.posts || []);
+      } catch (error) {
+        console.error('Error fetching posts:', error);
+      }
+    };
+
+    const fetchPopularPosts = async () => {
+      try {
+        const response = await fetch('/api/posts?limit=3&published=true&page=1');
+        const data = await response.json();
+        setPopularPosts(data.posts || []);
+      } catch (error) {
+        console.error('Error fetching popular posts:', error);
+      }
+    };
+
+    fetchPosts();
+    fetchPopularPosts();
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -44,7 +96,10 @@ const Sidebar = () => {
     setIsLoading(false);
   };
   return (
-    <div className="bg-white rounded-lg shadow-md p-6 lg:sticky">
+    <div className="bg-white rounded-lg shadow-md p-6  ">
+     
+
+     
       <h3 className="text-xl font-bold mb-4">Subscribe & Followers</h3>
 
 
@@ -95,6 +150,11 @@ const Sidebar = () => {
         </form>
       </div>
 
+        
+
+        
+
+  
 
       
       <div>
@@ -105,14 +165,51 @@ const Sidebar = () => {
               
                </div>
 
-        <div className="space-y-2">
-          {['Technology', 'Mobile', 'Gadget', 'News'].map((category) => (
-            <div key={category} className="flex justify-between items-center py-2 border-b border-gray-100">
-              <span className="text-gray-700">{category}</span>
-              <span className="text-gray-500">(12)</span>
-            </div>
+
+
+     
+      
+
+        {/* hot categories */}
+
+        <div className="space-y-4 mb-8">
+          {categories.map((category) => (
+            <Link key={category.slug} href={`/category/${category.slug}`}>
+              <div className="relative w-full aspect-[7/2] my-2 hover:aspect-square transition-all duration-300 overflow-hidden rounded-lg cursor-pointer">
+                <Image
+                  src={category.image}
+                  width={300}
+                  height={200}
+                  className="w-full h-full object-cover"
+                  alt={category.name}
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black to-transparent"></div>
+                <div className="absolute bottom-4 left-4">
+                  <span className="bg-white text-black px-3 py-1 rounded-full text-sm font-semibold">{category.name}</span>
+                </div>
+                <div className="absolute top-4 right-4 flex space-x-1">
+                  <FaArrowRight className="text-white text-lg transform rotate-295" />
+                  <FaArrowRight className="text-white text-lg transform rotate-295" />
+                </div>
+              </div>
+            </Link>
           ))}
         </div>
+
+        {/* most popular post */}
+        <h3 className="text-xl font-bold mb-4">Most Popular Posts</h3>
+
+        <div className='w-full h-3 border-t border-b border-gray-400 my-3 '  >
+          <div className='bg-[#f4786b] text-[#f4786b] w-30 h-full'>.</div>
+        </div>
+
+        <div className="space-y-4 mb-8">
+          {popularPosts.map((post) => (
+            <SmallCard key={post._id} post={post} />
+          ))}
+        </div>
+
+      
       </div>
     </div>
   );

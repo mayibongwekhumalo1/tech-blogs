@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { CldImage } from 'next-cloudinary'
+import Image from 'next/image'
 import { MdOutlineDateRange } from "react-icons/md";
 
 interface SmallCardProps {
@@ -23,6 +23,7 @@ interface PostData {
   category?: { name: string };
   createdAt: string;
   author?: { image?: string };
+  image?: string;
 }
 
 const SmallCard: React.FC<SmallCardProps> = ({ id, title, category, date, imageUrl, post: providedPost, onClick }) => {
@@ -72,13 +73,13 @@ const SmallCard: React.FC<SmallCardProps> = ({ id, title, category, date, imageU
     month: 'long',
     year: 'numeric'
   });
-  const displayImage = imageUrl || post.author?.image || '/placeholder-image.jpg';
+  const displayImage = imageUrl || post.image || post.author?.image || '/next.svg';
 
   const content = (
     <>
       {/* image holder */}
       <div className="w-24 sm:w-28 md:w-32 bg-blue-300 flex items-center justify-center relative flex-shrink-0">
-          <CldImage fill src={displayImage} alt={displayTitle} className="object-cover rounded" />
+          <Image fill src={displayImage} alt={displayTitle} className="object-cover rounded" sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" />
       </div>
 
       <div className="text-black px-2.5 py-1.5 space-y-2.5 flex-1">

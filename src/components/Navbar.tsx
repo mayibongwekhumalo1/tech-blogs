@@ -237,7 +237,7 @@ const SuperHeader = () => {
                   </div>
                 </div>
               ) : (
-                <Link href="/auth/signin" className="flex space-x-2.5 items-center bg-accent text-white px-4 py-2 rounded-lg text-md hover:bg-accent/80">
+                <Link href="/auth/signin" className="flex space-x-2.5 items-center text-gray-700 px-4 py-2 rounded-lg text-md hover:bg-accent/80">
                   <FaRegUserCircle className='mx-2' />
                   Sign In
                 </Link>

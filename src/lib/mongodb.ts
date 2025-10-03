@@ -7,7 +7,7 @@ declare global {
   } | undefined;
 }
 
-const MONGODB_URI = process.env.MONGODB_URI!||'mongodb://localhost:27017/bloggs';
+const MONGODB_URI = process.env.MONGODB_URI;
 
 if (!MONGODB_URI) {
   throw new Error('Please define the MONGODB_URI environment variable inside .env.local');
@@ -29,7 +29,7 @@ async function connectToDatabase() {
       bufferCommands: false,
     };
 
-    cached!.promise = mongoose.connect(MONGODB_URI, opts).then(() => {
+    cached!.promise = mongoose.connect(MONGODB_URI!, opts).then(() => {
       console.log('Connected to MongoDB');
       return mongoose;
     });

@@ -51,7 +51,7 @@ export async function POST(request: NextRequest) {
     await connectToDatabase();
 
     const body = await request.json();
-    const { name, description, color } = body;
+    const { name, description, color, image } = body;
 
     // Validate required fields
     if (!name?.trim()) {
@@ -81,6 +81,7 @@ export async function POST(request: NextRequest) {
       slug,
       description: description?.trim(),
       color: color || '#3B82F6',
+      image: image || '',
     });
 
     const savedCategory = await category.save();

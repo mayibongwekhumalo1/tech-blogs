@@ -25,9 +25,6 @@ const nextConfig: NextConfig = {
   // Enable compression
   compress: true,
 
-  // Output for deployment
-  output: 'standalone',
-
   // Experimental features for better performance
   experimental: {
     optimizeCss: true,

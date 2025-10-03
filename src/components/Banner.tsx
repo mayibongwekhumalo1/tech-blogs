@@ -1,6 +1,7 @@
 "use client"
 
 import React, { useState, useEffect } from 'react';
+import Image from 'next/image';
 import PostModal from './PostModal';
 
 interface Post {
@@ -65,10 +66,16 @@ const Hero = () => {
     <div className="bg-gray-100 py-12 px-6">
       <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2 rounded-lg shadow-md relative overflow-hidden hover:scale-105 hover:shadow-xl transition-all duration-300 cursor-pointer group" onClick={() => setSelectedPost(mainPost)}>
-          {mainPost.image && (
-            <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${mainPost.image})` }}></div>
-          )}
-          <div className="absolute inset-0 bg-gradient-to-t from-black to-transparent z-5"></div>
+           {mainPost.image && (
+             <Image
+               fill
+               src={mainPost.image}
+               alt={mainPost.title}
+               className="object-cover"
+               sizes="(max-width: 1024px) 100vw, 66vw"
+             />
+           )}
+           <div className="absolute inset-0 bg-gradient-to-t from-black to-transparent z-5"></div>
           <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-6 z-10">
             <span className="bg-pink-500 text-white font-semibold px-2 py-1 text-xs sm:text-sm">{mainPost.category?.name || 'Technology'}</span>
             <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mt-2 mb-4 text-white leading-tight">{mainPost.title}</h2>
@@ -91,7 +98,13 @@ const Hero = () => {
           {sidePosts.map((post) => (
             <div key={post._id} className="rounded-lg shadow-md p-4 relative overflow-hidden hover:scale-105 hover:shadow-xl transition-all duration-300 cursor-pointer group" onClick={() => setSelectedPost(post)}>
               {post.image && (
-                <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${post.image})` }}></div>
+                <Image
+                  fill
+                  src={post.image}
+                  alt={post.title}
+                  className="object-cover"
+                  sizes="(max-width: 1024px) 100vw, 33vw"
+                />
               )}
               <div className="absolute inset-0 bg-gradient-to-t from-black to-transparent z-5"></div>
               <div className="relative z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 p-2 sm:p-4">

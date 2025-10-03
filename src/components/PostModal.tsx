@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useSession } from 'next-auth/react';
 import Image from 'next/image';
 import { FaThumbsUp, FaComment, FaShare } from 'react-icons/fa';
@@ -42,14 +42,7 @@ const PostModal: React.FC<PostModalProps> = ({ post, isOpen, onClose }) => {
   const [submitting, setSubmitting] = useState(false);
   const [currentLikes, setCurrentLikes] = useState(post?.likes || 0);
 
-  useEffect(() => {
-    if (post && isOpen) {
-      fetchComments();
-      setCurrentLikes(post.likes || 0);
-    }
-  }, [post, isOpen]);
-
-  const fetchComments = async () => {
+  const fetchComments = useCallback(async () => {
     if (!post) return;
     try {
       const response = await fetch(`/api/comments?postId=${post._id}`);
@@ -64,7 +57,14 @@ const PostModal: React.FC<PostModalProps> = ({ post, isOpen, onClose }) => {
     } catch (error) {
       console.error('Error fetching comments:', error);
     }
-  };
+  }, [post]);
+
+  useEffect(() => {
+    if (post && isOpen) {
+      fetchComments();
+      setCurrentLikes(post.likes || 0);
+    }
+  }, [post, isOpen, fetchComments]);
 
   const handleLike = async () => {
     if (!post) return;
@@ -100,7 +100,10 @@ const PostModal: React.FC<PostModalProps> = ({ post, isOpen, onClose }) => {
 
       if (response.ok) {
         const comment = await response.json();
-        setComments([...comments, comment]);
+        const newComments = [...comments, comment].sort((a, b) =>
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        );
+        setComments(newComments);
         setNewComment('');
       }
     } catch (error) {
@@ -316,9 +319,11 @@ const PostModal: React.FC<PostModalProps> = ({ post, isOpen, onClose }) => {
                     <div className="flex items-start justify-between">
                       <div className="flex items-center mb-2">
                         {comment.author?.image && (
-                          <img
+                          <Image
                             src={comment.author.image}
                             alt={comment.author.name}
+                            width={24}
+                            height={24}
                             className="w-6 h-6 rounded-full mr-2"
                           />
                         )}

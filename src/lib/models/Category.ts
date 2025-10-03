@@ -6,6 +6,7 @@ export interface ICategory extends Document {
   slug: string;
   description: string;
   color: string;
+  image: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -39,6 +40,10 @@ const CategorySchema = new mongoose.Schema<ICategory>(
         },
         message: 'Color must be a valid hex color code'
       }
+    },
+    image: {
+      type: String,
+      default: '',
     },
   },
   {
