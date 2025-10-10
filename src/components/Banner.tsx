@@ -107,7 +107,7 @@ const Hero = () => {
                 />
               )}
               <div className="absolute inset-0 bg-gradient-to-t from-black to-transparent z-5"></div>
-              <div className="relative z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 p-2 sm:p-4">
+              <div className="relative z-10 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-300 p-2 sm:p-4">
                 <span className={`bg-pink-500 text-white font-semibold px-2 py-1 text-xs sm:text-sm`}>
                   {post.category?.name || 'Category'}
                 </span>

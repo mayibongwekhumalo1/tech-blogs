@@ -40,4 +40,4 @@ export async function POST(request: NextRequest) {
     console.error('Upload error:', error);
     return NextResponse.json({ error: 'Upload failed' }, { status: 500 });
   }
-}
+} 

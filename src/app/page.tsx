@@ -4,30 +4,18 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
-import Banner from '../components/Banner';
-import PostCard from '../components/PostCard';
-import Sidebar from '../components/Sidebar';
-import SmallCard from '../components/SmallCard';
-import OverlayCard from '../components/OverlayCard';
-import { FaArrowRight ,FaArrowLeft} from "react-icons/fa6";
-import { FaArrowUp } from 'react-icons/fa';
 import Image from 'next/image';
-import Deco from '../components/Deco';
-import Slider from 'react-slick';
-
-interface Post {
-  _id: string;
-  slug: string;
-  title: string;
-  content: string;
-  category: { name: string; slug: string; color?: string };
-  createdAt: string;
-  author: { name: string; email: string; image?: string };
-  excerpt?: string;
-  image?: string;
-  published: boolean;
-  featured: boolean;
-};
+import { FaArrowRight, FaArrowLeft } from 'react-icons/fa6';
+import { FaArrowUp } from 'react-icons/fa';
+import Banner from '@/components/Banner';
+import Sidebar from '@/components/Sidebar';
+import SmallCard from '@/components/SmallCard';
+import OverlayCard from '@/components/OverlayCard';
+import Slanted from '@/components/Slanted';
+import Deco2 from '@/components/Deco2';
+import WeeklyBestNews from '@/components/WeeklyBestNews';
+import NewsletterBar from '@/components/NewsletterBar';
+import { Post } from '@/types/post';
 
 const Home: React.FC = () => {
   const [posts, setPosts] = useState<Post[]>([]);
@@ -88,15 +76,15 @@ const Home: React.FC = () => {
 
       {/* deco */}
 
-         <div className="flex justify-center items-center px-4 md:px-40 my-20">
-           <Deco
-
-           className='w-full md:w-[70%]'
-           imageSrc='https://res.cloudinary.com/dxrv8lauy/image/upload/v1758792712/ecommerce-products/oy8dkgspsf2p99eqcmjt.jpg'
-
-           />
-         </div>
-
+      <div className=" ">
+        
+       <Slanted
+         title="Modern Technology Fest Here"
+         buttonText="See Details"
+         imageSrc="https://res.cloudinary.com/dxrv8lauy/image/upload/v1758800630/ecommerce-products/tzlic8ttx5jlvyib736y.jpg"
+       />
+      </div>
+       
         {/* Editor's Choice */}
         <div className="flex justify-between items-center mb-6 px-4 md:px-20 mt-2.5">
           <h2 className="text-2xl font-bold">Editor&apos;s Choice</h2>
@@ -117,6 +105,7 @@ const Home: React.FC = () => {
         {/* deco line */}
         <div className='w-[90%] mx-auto h-3 border-t border-b my-3 '  >
           <div className='bg-red-500 text-red-500 w-30 h-full'>.</div>
+          <span className='bg-transparent skew-12'></span>
         </div>
 
         {/* Desktop version */}
@@ -216,19 +205,17 @@ const Home: React.FC = () => {
 
 
             {/* Ad component */}
-            <div className="flex justify-center items-center px-4 my-20  w-full">
-              <Deco
-                title="Discover the Latest Tech Innovations"
-                buttonText="Explore Now"
-                titleClassName="text-lg md:text-xl font-semibold"
-                buttonClassName="w-[150px] h-[50px]"
-                className="w-full md:w-full h-auto md:h-[200px]"
-                imageSrc="https://res.cloudinary.com/dxrv8lauy/image/upload/v1758792712/ecommerce-products/oy8dkgspsf2p99eqcmjt.jpg"
-                imageWidth={400}
-                imageHeight={250}
-                
-              />
-            </div>
+            <div className=" ">
+        
+       <Slanted
+         title="Modern Technology Fest Here"
+         imageClassName='w-full  h-full'
+         titleClassName='text-sm lg:-ml-15 font-light'
+         buttonClassName='p-0 text-sm'
+         buttonText="See Details"
+         imageSrc="https://res.cloudinary.com/dxrv8lauy/image/upload/v1758800630/ecommerce-products/tzlic8ttx5jlvyib736y.jpg"
+       />
+      </div>
 
             {/* Trending News */}
             <div className="flex justify-between items-center mb-6">
@@ -290,7 +277,7 @@ const Home: React.FC = () => {
                   <p className="text-gray-700 mb-4 text-sm sm:text-base leading-relaxed">
                     {posts[7].excerpt || 'Browned butter and brown sugar are caramelly goodness, crispy edges and soft centers rare melty little puddles of chocolate first favorite thing about these browned butter.'}
                   </p>
-                  <span className="px-2 py-0.5 border border-gray-200 flex items-center space-x-2 text-sm sm:text-base">
+                  <span className="px-2 py-0.5 border border-gray-200 flex items-center space-x-2 text-sm sm:text-base text-center md:w-40">
                     Read More
                     <span className='flex flex-col ml-1.5 text-red-400 rotate-12'><FaArrowUp /> <FaArrowUp /></span>
                   </span>
@@ -298,6 +285,7 @@ const Home: React.FC = () => {
               </div>
               </Link>
             )}
+
 
             {/* More Posts */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
@@ -358,111 +346,52 @@ const Home: React.FC = () => {
         </div>
       </main>
 
-      <section className="w-full md:w-3xl mx-auto h-[200px] my-20 bg-green-200 flex flex-col md:flex-row items-center justify-between px-6 md:px-12 py-8 rounded-lg shadow-md">
-        {/* Left Image */}
-        <div className="md:w-1/3 flex justify-center mb-6 md:mb-0 rounded-full">
-          <Image
-            src="https://res.cloudinary.com/dxrv8lauy/image/upload/v1758792712/ecommerce-products/oy8dkgspsf2p99eqcmjt.jpg"
-            alt="iPhone 14 Pro Max"
-            width={200}
-            height={300}
-            className="object-cover w-40  h-40 rounded-[100%]"
-          />
-        </div>
-        {/* Center Content */}
-        <div className="md:w-1/2 text-center md:text-left space-y-3 mx-3.5">
-          <h2 className=" font-bold text-gray-900">
-            iPhone 14 Pro Max 2023
-           </h2>
-          <p className="text-gray-700">
-            Browned Butter And Brown Sugar Caramel Goodness <br />
-            Crispy Edges Thick And Soft Centers.
-          </p>
-        </div>
-        {/* Right Button */}
-        <div className="md:w-1/6 flex justify-center md:justify-end mt-6 md:mt-0">
-          <a
-            href="#"
-            className="bg-white border border-gray-300 hover:border-gray-400 text-gray-900 px-5 py-2 rounded-md shadow-sm transition inline-flex items-center gap-2"
-          >
-            SHOP ONLINE <span className="text-md">↗</span>
-          </a>
+      <Deco2
+      
+       title="iPhone 14 Pro Max 2023"
+      description="Browned Butter And Brown Sugar Caramel Goodness. Crispy Edges Thick And Soft Centers."
+      imageUrl="https://res.cloudinary.com/dxrv8lauy/image/upload/v1757495271/ff08179abf1c2ee07082329978ff667633dc0cf4_fz1ayc.jpg"
+      buttonText="SHOP ONLINE"
+      buttonLink="#"
+
+      />
+
+
+
+      {/* overlayed grid */}
+
+      <section className="overlayed w-full px-2 sm:px-4 md:px-8 py-6 md:py-10">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          {posts.slice(0, 4).map((post) => (
+            <div key={post._id} className="h-52 sm:h-64 md:h-72 lg:h-80">
+              <OverlayCard
+                category={post.category?.name || 'Uncategorized'}
+                title={post.title}
+                date={new Date(post.createdAt).toLocaleDateString()}
+                excerpt={post.excerpt}
+                author={post.author?.name ? `by ${post.author.name}` : undefined}
+                readTime="5 Mins"
+                id={post._id}
+                image={post.image}
+              />
+            </div>
+          ))}
         </div>
       </section>
 
 
-      {/* overlayed carousel */}
 
-        <section className="overlayed w-full px-4 py-8">
-          <Slider
-            dots={true}
-            infinite={true}
-            speed={500}
-            slidesToShow={4}
-            slidesToScroll={1}
-            autoplay={true}
-            autoplaySpeed={4000}
-            pauseOnHover={true}
-            swipe={true}
-            responsive={[
-              {
-                breakpoint: 1024,
-                settings: {
-                  slidesToShow: 2,
-                  slidesToScroll: 1,
-                }
-              },
-              {
-                breakpoint: 640,
-                settings: {
-                  slidesToShow: 1,
-                  slidesToScroll: 1,
-                }
-              }
-            ]}
-          >
-            {posts.slice(0, 8).map((post) => (
-              <div key={post._id} className="px-2">
-                <div className="h-48 sm:h-64 md:h-80">
-                  <OverlayCard
-                    category={post.category?.name || 'Uncategorized'}
-                    title={post.title}
-                    date={new Date(post.createdAt).toLocaleDateString()}
-                    excerpt={post.excerpt}
-                    author={post.author?.name ? `by ${post.author.name}` : undefined}
-                    readTime="5 Mins"
-                    id={post._id}
-                    image={post.image}
-                  />
-                </div>
-              </div>
-            ))}
-          </Slider>
-        </section>
+      
+{/* weeklly best news */}
+
+        <WeeklyBestNews posts={posts} />
 
 
-            
-        <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-bold">Weekly Best News</h2>
-              <button className="text-blue-600 font-semibold hover:underline">View All</button>
-            </div>
+        {/* news latter */}
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-             {posts.slice(11, 15).map((post) => {
-               return (
-                <PostCard
-                  key={post._id}
-                  category={post.category?.name || 'Uncategorized'}
-                  title={post.title}
-                  date={new Date(post.createdAt).toLocaleDateString()}
-                  id={post._id}
-                  image={post.image}
-                />
-              )
-            })}
-            </div>
+      
 
-
+        <NewsletterBar/>
 
     </div>
   );
